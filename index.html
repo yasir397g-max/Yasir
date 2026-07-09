@@ -53,7 +53,7 @@
             background-color: var(--card-bg); padding: 14px; border-radius: 14px; margin-bottom: 10px;
             display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-right: 5px solid var(--status-wait);
-            position: relative; touch-action: none;
+            position: relative; touch-action: pan-y;
         }
         .task-card.dragging { opacity: 0.35; border: 2px dashed var(--accent-color); transform: scale(0.98); }
         .task-info { display: flex; flex-direction: column; gap: 4px; flex: 1; text-align: right; margin-right: 8px; }
@@ -62,7 +62,7 @@
         .week-task-card {
             background-color: var(--card-bg); padding: 10px 12px; border-radius: 12px; margin-bottom: 8px;
             display: flex; flex-direction: column; gap: 3px; border-right: 4px solid var(--cat-study);
-            position: relative; touch-action: none; cursor: pointer;
+            position: relative; touch-action: pan-y; cursor: pointer;
         }
         .week-task-card.dragging { opacity: 0.35; border: 2px dashed var(--accent-color); }
         .week-task-time-badge {
@@ -78,6 +78,11 @@
             background: #222232; color: var(--text-muted); border: 1px solid #2d2d3f; cursor: pointer;
         }
         .chip-choice.selected { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
+        .chip-icon-ring {
+            display:inline-flex; align-items:center; justify-content:center;
+            width:18px; height:18px; border-radius:50%;
+            border:1.5px solid; font-size:10px; flex-shrink:0;
+        }
         .days-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
         .day-chip { background: var(--card-bg); color: var(--text-muted); padding: 8px 10px; border-radius: 12px; font-size: 12px; text-align: center; flex: 1; min-width: 60px; border: 1px solid #262636; }
         .day-chip.active-day { background: var(--accent-color); color: #fff; border-color: var(--accent-color); font-weight: bold; }
@@ -129,7 +134,7 @@
         #celebration-overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.9); z-index: 1000000; align-items: center; justify-content: center; flex-direction: column; text-align: center; color: #fff; }
         .alert-banner { background: rgba(16,172,132,0.15); border: 1px dashed var(--status-done); padding: 10px; border-radius: 10px; font-size: 12px; margin-bottom: 12px; display: none; justify-content: space-between; align-items: center; }
         .pool-container { background: rgba(34,34,50,0.4); border: 1px dashed #3d3d5c; padding: 12px; border-radius: 14px; margin-bottom: 15px; min-height: 60px; }
-        .pool-card { background: var(--card-bg); border: 1px solid #222232; padding: 10px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: grab; box-shadow: 0 2px 6px rgba(0,0,0,0.2); touch-action: none; }
+        .pool-card { background: var(--card-bg); border: 1px solid #222232; padding: 10px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: grab; box-shadow: 0 2px 6px rgba(0,0,0,0.2); touch-action: pan-y; }
         .pool-card.dragging-h-item { opacity: 0.35; border: 1px dashed var(--accent-color); }
         .grid-split-view { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 15px; }
         @media(min-width:600px) { .grid-split-view { grid-template-columns: 1fr 1fr; } }
@@ -212,7 +217,7 @@
         }
         .lib-reorder-handle {
             flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-            width: 40px; color: var(--text-muted); cursor: grab; touch-action: none;
+            width: 22px; color: var(--text-muted); cursor: grab; touch-action: pan-y;
             border-radius: 8px; transition: background 0.15s, color 0.15s;
         }
         .lib-reorder-handle:hover, .lib-reorder-handle.dragging { color: var(--accent-color); background: rgba(187,134,252,0.08); }
@@ -240,7 +245,7 @@
             padding: 10px; gap: 10px;
         }
         .lib-unit-row .lib-reorder-handle {
-            width: 34px;
+            width: 18px;
         }
         .lib-unit-num { font-size: 11px; color: var(--text-muted); font-weight: bold; min-width: 24px; text-align: center; }
         .lib-unit-info { flex: 1; min-width: 0; }
@@ -260,6 +265,20 @@
         .lib-custom-icon { width: 40px; height: 40px; border-radius: 12px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); }
         .lib-default-icon { width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 17px; background: rgba(255,255,255,0.04); }
         .lib-worship-progress-note { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+        /* ===== نافذة قص وتموضع الصورة عند الرفع ===== */
+        .image-cropper-overlay {
+            display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(5,5,8,0.9);
+            z-index: 100010; align-items: center; justify-content: center; backdrop-filter: blur(6px);
+        }
+        .cropper-box { background: var(--card-bg); border: 1px solid #2d2d3f; border-radius: 18px; padding: 18px; width: 90%; max-width: 300px; text-align: center; }
+        #cropper-viewport {
+            position: relative; width: 230px; height: 230px; margin: 0 auto; overflow: hidden;
+            border-radius: 69px; background: #0c0c12; border: 1px solid rgba(255,255,255,0.08); touch-action: none;
+        }
+        #cropper-image { position: absolute; top: 0; left: 0; transform-origin: 0 0; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+        .cropper-zoom-row { display: flex; align-items: center; gap: 8px; margin: 14px 0 8px 0; }
+        .cropper-zoom-row input[type="range"] { flex: 1; accent-color: var(--accent-color); }
 
         /* ===== صناديق الأسابيع النيوم ===== */
         .week-bucket-neom {
@@ -322,7 +341,7 @@
         .period-task-pill {
             display: flex; align-items: center; justify-content: space-between; gap: 8px;
             border: 1.5px solid rgba(187,134,252,0.4); border-radius: 10px; padding: 7px 10px;
-            font-size: 12px; color: var(--text-color); cursor: grab; touch-action: none;
+            font-size: 12px; color: var(--text-color); cursor: grab; touch-action: pan-y;
             width: 100%; margin-bottom: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
         .period-task-pill .pill-remove {
@@ -339,7 +358,7 @@
         .day-task-pill {
             display: inline-flex; align-items: center; gap: 5px; background: rgba(187,134,252,0.1);
             border: 1px solid rgba(187,134,252,0.3); border-radius: 6px; padding: 4px 8px;
-            font-size: 11px; color: var(--text-color); margin: 3px; cursor: grab; touch-action: none;
+            font-size: 11px; color: var(--text-color); margin: 3px; cursor: grab; touch-action: pan-y;
         }
 
         /* نافذة نبثقة مهام الأهداف */
@@ -443,6 +462,21 @@
     </div>
 </div>
 
+<!-- نافذة إنجاز قراءة كتاب (نظام صفحات) -->
+<div id="book-read-completion-modal" class="prayer-confirm-modal-overlay">
+    <div class="prayer-confirm-box" style="border-color:var(--cat-book);background:rgba(107,74,31,0.08);">
+        <div style="font-size:38px;margin-bottom:8px;color:var(--cat-book);"><i class="fa-solid fa-book-open-reader"></i></div>
+        <div class="prayer-confirm-title" id="book-read-completion-title" style="color:var(--cat-book);">إنجاز قراءة من كتاب</div>
+        <div class="prayer-confirm-subtitle">أحسنت! واصل القراءة 📖</div>
+        <button class="prayer-btn-done clickable" style="background:var(--cat-book);" onclick="confirmWorshipTaskDone()"><i class="fa-solid fa-check-circle"></i> تمت المهمة ✅</button>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <button class="clickable" style="flex:1;background:var(--card-bg);border:1px solid var(--cat-book);color:var(--cat-book);border-radius:12px;padding:10px;font-size:12px;font-weight:bold;display:flex;align-items:center;justify-content:center;gap:6px;" onclick="editWorshipTaskFromModal()"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
+            <button class="clickable" style="flex:1;background:var(--card-bg);border:1px solid var(--status-delay);color:var(--status-delay);border-radius:12px;padding:10px;font-size:12px;font-weight:bold;display:flex;align-items:center;justify-content:center;gap:6px;" onclick="deleteCompletionModalTask()"><i class="fa-solid fa-trash"></i> حذف</button>
+        </div>
+        <button class="prayer-btn-cancel clickable" onclick="closeActiveCompletionModal()">إلغاء</button>
+    </div>
+</div>
+
 <!-- نافذة تأكيد إنجاز الكتب -->
 <div id="book-completion-modal" class="prayer-confirm-modal-overlay">
     <div class="prayer-confirm-box" style="border-color:var(--cat-book);background:rgba(107,74,31,0.08);">
@@ -493,10 +527,19 @@
                 <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:6px;">نسبة الإتقان:</label>
                 <div class="chips-container" id="lib-longpress-mastery-choices" style="margin:0;"></div>
             </div>
+            <div id="lib-longpress-time-section" style="display:none;margin-bottom:14px;">
+                <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:6px;">الوقت المتوقع:</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="number" id="lib-longpress-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                    <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+                    <input type="number" id="lib-longpress-minutes" min="0" max="59" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                    <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+                </div>
+            </div>
         </div>
         <div id="lib-longpress-footer" style="display:flex;gap:8px;flex-shrink:0;padding-top:10px;">
             <button class="btn-prime clickable" onclick="saveLongpressEdit()">حفظ</button>
-            <button class="btn-prime clickable" style="background:var(--status-delay);color:white;flex:0.6;" onclick="deleteLongpressTarget()"><i class="fa-solid fa-trash"></i></button>
+            <button id="lib-longpress-delete-btn" class="btn-prime clickable" style="background:var(--status-delay);color:white;flex:0.6;" onclick="deleteLongpressTarget()"><i class="fa-solid fa-trash"></i></button>
         </div>
         <button class="btn-prime clickable" style="background:#262636;color:white;margin-top:8px;flex-shrink:0;margin-bottom:16px;" onclick="closeLibLongpressModal()">إلغاء</button>
     </div>
@@ -597,9 +640,9 @@
             <!-- قائمة الكتب -->
             <div id="modal-books-panel" style="display:none;">
                 <div id="modal-books-injection-pool" style="margin:5px 0;min-height:25px;"></div>
-                <!-- دروس الكتاب المختار -->
+                <!-- دروس/صفحات الكتاب المختار (حسب وضعه: دراسة/قراءة/حفظ) -->
                 <div id="modal-lessons-panel" style="display:none;margin-top:8px;">
-                    <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">اختر درساً:</div>
+                    <div id="modal-lessons-label" style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">اختر درساً:</div>
                     <div id="modal-lessons-list"></div>
                 </div>
             </div>
@@ -915,7 +958,7 @@
     <!-- لوحة السلاسل (جديدة كلياً — مسلسلات/محتوى ترفيهي، مستقلة تماماً عن بيانات فقه النفس) -->
     <div id="lib-newseries-panel" class="lib-panel" style="display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span class="section-title" style="margin:0;border:none;"><i class="fa-solid fa-clapperboard"></i> السلاسل (مسلسلات / محتوى ترفيهي)</span>
+            <span class="section-title" style="margin:0;border:none;"><i class="fa-solid fa-clapperboard"></i> السلاسل (يوتيوب أو دورات)</span>
             <button onclick="openAddNewSeriesModal()" style="background:var(--cat-newseries);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;"><i class="fa-solid fa-plus"></i></button>
         </div>
         <div id="lib-newseries-list"></div>
@@ -943,6 +986,38 @@
     </div>
 </div>
 
+<!-- نافذة اختيار لون مخصص أنيقة (بديل عن منتقي الألوان الأصلي بالمتصفح) -->
+<div id="custom-color-picker-modal" class="custom-modal-overlay">
+    <div class="custom-modal-content" style="max-width:340px;">
+        <h3 style="margin:0 0 12px 0;color:var(--accent-color);font-size:15px;text-align:right;"><i class="fa-solid fa-palette"></i> اختر لوناً إضافياً</h3>
+        <div id="curated-color-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;justify-content:flex-start;"></div>
+        <button class="btn-prime clickable" style="background:#262636;color:white;font-size:12px;margin-bottom:8px;" onclick="openNativeColorFallback()"><i class="fa-solid fa-eye-dropper"></i> لون مخصص بالكامل</button>
+        <button class="btn-prime clickable" style="background:#1a1a22;color:var(--text-muted);" onclick="closeCustomColorPickerModal()">إلغاء</button>
+    </div>
+</div>
+
+<!-- نافذة إضافة دفعة وحدات (دروس الكتب / حلقات فقه النفس / حلقات السلاسل) بدل prompt الأصلي -->
+<div id="bulk-add-units-modal" class="custom-modal-overlay">
+    <div class="custom-modal-content">
+        <h3 id="bulk-add-units-title" style="margin:0 0 12px 0;color:var(--accent-color);font-size:15px;text-align:right;"><i class="fa-solid fa-layer-group"></i> إضافة دفعة وحدات</h3>
+        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">عدد الوحدات:</label>
+        <input type="number" id="bulk-add-units-count" min="1" max="500" value="10" style="width:100%;padding:10px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:8px;font-size:14px;text-align:center;outline:none;margin-bottom:12px;box-sizing:border-box;">
+        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">بادئة الاسم:</label>
+        <input type="text" id="bulk-add-units-prefix" placeholder="مثال: درس" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:14px;text-align:right;font-family:inherit;box-sizing:border-box;">
+        <label id="bulk-add-units-time-label" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل حلقة:</label>
+        <div id="bulk-add-units-time-row" style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+            <input type="number" id="bulk-add-units-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+            <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+            <input type="number" id="bulk-add-units-minutes" min="0" max="59" value="30" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+            <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn-prime clickable" onclick="submitBulkAddUnits()">إضافة</button>
+            <button class="btn-prime clickable" style="background:#262636;color:white;" onclick="closeBulkAddUnitsModal()">إلغاء</button>
+        </div>
+    </div>
+</div>
+
 <!-- نافذة إضافة مادة (منقولة من الروتين للمكتبة) -->
 <div id="add-subject-modal" class="custom-modal-overlay">
     <div class="custom-modal-content">
@@ -961,7 +1036,7 @@
             <div class="color-swatch" data-color="#e91e63" style="background:#e91e63;" onclick="selectSubjectColor('#e91e63',this)"></div>
             <div class="color-swatch" data-color="#ff9800" style="background:#ff9800;" onclick="selectSubjectColor('#ff9800',this)"></div>
             <div class="color-swatch" data-color="#607d8b" style="background:#607d8b;" onclick="selectSubjectColor('#607d8b',this)"></div>
-            <div class="color-swatch color-swatch-add-btn" onclick="document.getElementById('subject-custom-color-input').click()" style="background:#222232;border:1px dashed #444;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fa-solid fa-plus" style="font-size:12px;"></i></div>
+            <div class="color-swatch color-swatch-add-btn" onclick="openCustomColorPickerModal('subject')" style="background:#222232;border:1px dashed #444;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fa-solid fa-plus" style="font-size:12px;"></i></div>
             <input type="color" id="subject-custom-color-input" style="display:none;" onchange="addCustomSubjectColor(this.value)">
         </div>
         <div id="subject-color-exhausted-hint" style="display:none;font-size:10px;color:var(--status-work);margin-bottom:10px;">⚠ استُخدمت كل الألوان — سيتكرر أقرب لون متاح.</div>
@@ -984,14 +1059,32 @@
 <div id="add-book-modal" class="custom-modal-overlay">
     <div class="custom-modal-content">
         <h3 style="margin:0 0 12px 0;color:var(--cat-study);font-size:15px;text-align:right;"><i class="fa-solid fa-book"></i> إضافة كتاب/متن</h3>
+        <!-- وضع الكتاب: دراسة (دروس بالاسم) / قراءة (صفحات) / حفظ (صفحات بتصعيد نسبة) -->
+        <div class="chips-container" style="margin-top:0;margin-bottom:12px;">
+            <div id="book-mode-study" class="chip-choice selected" onclick="selectBookMode('study')" style="flex:1;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <span class="chip-icon-ring" style="border-color:var(--cat-study);color:var(--cat-study);"><i class="fa-solid fa-graduation-cap"></i></span> دراسة
+            </div>
+            <div id="book-mode-reading" class="chip-choice" onclick="selectBookMode('reading')" style="flex:1;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <span class="chip-icon-ring" style="border-color:var(--cat-study);color:var(--cat-study);"><i class="fa-solid fa-book-open"></i></span> قراءة
+            </div>
+            <div id="book-mode-memorize" class="chip-choice" onclick="selectBookMode('memorize')" style="flex:1;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <span class="chip-icon-ring" style="border-color:var(--cat-study);color:var(--cat-study);"><i class="fa-solid fa-brain"></i></span> حفظ
+            </div>
+        </div>
         <input type="text" id="add-book-name" placeholder="اسم الكتاب" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:right;font-family:inherit;">
-        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">اسم الوحدة (محاضرة / حلقة / درس):</label>
-        <select id="add-book-unit-type" style="width:100%;padding:10px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:8px;margin-bottom:14px;font-size:13px;">
-            <option value="درس">درس</option>
-            <option value="حلقة">حلقة</option>
-            <option value="محاضرة">محاضرة</option>
-            <option value="جزء">جزء</option>
-        </select>
+        <div id="book-unittype-field">
+            <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">اسم الوحدة (محاضرة / حلقة / درس):</label>
+            <select id="add-book-unit-type" style="width:100%;padding:10px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:8px;margin-bottom:14px;font-size:13px;">
+                <option value="درس">درس</option>
+                <option value="حلقة">حلقة</option>
+                <option value="محاضرة">محاضرة</option>
+                <option value="جزء">جزء</option>
+            </select>
+        </div>
+        <div id="book-pages-field" style="display:none;">
+            <label id="book-pages-label" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">إجمالي عدد الصفحات:</label>
+            <input type="number" id="add-book-pages" min="1" max="2000" value="200" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:14px;text-align:center;">
+        </div>
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">اللون:</label>
         <div class="color-swatches-row" id="book-color-swatches" style="margin-bottom:14px;">
             <div class="color-swatch selected" data-color="#10ac84" style="background:#10ac84;" onclick="selectBookColor('#10ac84',this)"></div>
@@ -1000,7 +1093,7 @@
             <div class="color-swatch" data-color="#e67e22" style="background:#e67e22;" onclick="selectBookColor('#e67e22',this)"></div>
             <div class="color-swatch" data-color="#e74c3c" style="background:#e74c3c;" onclick="selectBookColor('#e74c3c',this)"></div>
             <div class="color-swatch" data-color="#f1c40f" style="background:#f1c40f;" onclick="selectBookColor('#f1c40f',this)"></div>
-            <div class="color-swatch color-swatch-add-btn" onclick="document.getElementById('book-custom-color-input').click()" style="background:#222232;border:1px dashed #444;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fa-solid fa-plus" style="font-size:12px;"></i></div>
+            <div class="color-swatch color-swatch-add-btn" onclick="openCustomColorPickerModal('book')" style="background:#222232;border:1px dashed #444;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fa-solid fa-plus" style="font-size:12px;"></i></div>
             <input type="color" id="book-custom-color-input" style="display:none;" onchange="addCustomBookColor(this.value)">
         </div>
         <div id="book-color-exhausted-hint" style="display:none;font-size:10px;color:var(--status-work);margin-bottom:10px;">⚠ استُخدمت كل الألوان — سيتكرر أقرب لون متاح.</div>
@@ -1010,6 +1103,8 @@
             <button type="button" onclick="document.getElementById('add-book-icon-input').click()" style="background:#222232;border:1px solid #2d2d3f;color:var(--text-muted);padding:8px 14px;border-radius:8px;font-size:11px;cursor:pointer;"><i class="fa-solid fa-image"></i> رفع صورة</button>
             <input type="file" id="add-book-icon-input" accept="image/*" style="display:none;" onchange="handleBookIconUpload(event)">
         </div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">الكتب المضافة حالياً:</div>
+        <div id="add-book-existing-preview" style="max-height:90px;overflow-y:auto;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:5px;"></div>
         <div style="display:flex;gap:8px;">
             <button class="btn-prime clickable" onclick="submitAddBook()">إضافة</button>
             <button class="btn-prime clickable" style="background:#262636;color:white;" onclick="closeAddBookModal()">إلغاء</button>
@@ -1037,7 +1132,7 @@
             <div class="color-swatch" data-color="#9b59b6" style="background:#9b59b6;" onclick="selectSeriesColor('#9b59b6',this)"></div>
             <div class="color-swatch" data-color="#e74c3c" style="background:#e74c3c;" onclick="selectSeriesColor('#e74c3c',this)"></div>
             <div class="color-swatch" data-color="#1abc9c" style="background:#1abc9c;" onclick="selectSeriesColor('#1abc9c',this)"></div>
-            <div class="color-swatch color-swatch-add-btn" onclick="document.getElementById('series-custom-color-input').click()" style="background:#222232;border:1px dashed #444;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fa-solid fa-plus" style="font-size:12px;"></i></div>
+            <div class="color-swatch color-swatch-add-btn" onclick="openCustomColorPickerModal('series')" style="background:#222232;border:1px dashed #444;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fa-solid fa-plus" style="font-size:12px;"></i></div>
             <input type="color" id="series-custom-color-input" style="display:none;" onchange="addCustomSeriesColor(this.value)">
         </div>
         <div id="series-color-exhausted-hint" style="display:none;font-size:10px;color:var(--status-work);margin-bottom:10px;">⚠ استُخدمت كل الألوان — سيتكرر أقرب لون متاح.</div>
@@ -1074,7 +1169,7 @@
             <div class="color-swatch" data-color="#f39c12" style="background:#f39c12;" onclick="selectNewSeriesColor('#f39c12',this)"></div>
             <div class="color-swatch" data-color="#6c5ce7" style="background:#6c5ce7;" onclick="selectNewSeriesColor('#6c5ce7',this)"></div>
             <div class="color-swatch" data-color="#00d2a0" style="background:#00d2a0;" onclick="selectNewSeriesColor('#00d2a0',this)"></div>
-            <div class="color-swatch color-swatch-add-btn" onclick="document.getElementById('newseries-custom-color-input').click()" style="background:#222232;border:1px dashed #444;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fa-solid fa-plus" style="font-size:12px;"></i></div>
+            <div class="color-swatch color-swatch-add-btn" onclick="openCustomColorPickerModal('newseries')" style="background:#222232;border:1px dashed #444;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fa-solid fa-plus" style="font-size:12px;"></i></div>
             <input type="color" id="newseries-custom-color-input" style="display:none;" onchange="addCustomNewSeriesColor(this.value)">
         </div>
         <div id="newseries-color-exhausted-hint" style="display:none;font-size:10px;color:var(--status-work);margin-bottom:10px;">⚠ استُخدمت كل الألوان — سيتكرر أقرب لون متاح.</div>
@@ -1095,16 +1190,22 @@
 <div id="add-worship-modal" class="custom-modal-overlay">
     <div class="custom-modal-content">
         <h3 style="margin:0 0 12px 0;color:var(--cat-god);font-size:15px;text-align:right;"><i class="fa-solid fa-mosque"></i> إضافة عبادة جديدة</h3>
-        <!-- نوع العبادة -->
+        <!-- نوع العبادة: قراءة لم تعد خياراً يدوياً (محجوزة لمهمة "القرآن الكريم" الدائمة فقط) -->
         <div class="chips-container" style="margin-top:0;margin-bottom:12px;">
-            <div id="worship-type-reading" class="chip-choice selected" onclick="selectWorshipType('reading')" style="flex:1;text-align:center;">📖 قراءة</div>
-            <div id="worship-type-memorize" class="chip-choice" onclick="selectWorshipType('memorize')" style="flex:1;text-align:center;">🧠 حفظ</div>
-            <div id="worship-type-simple" class="chip-choice" onclick="selectWorshipType('simple')" style="flex:1;text-align:center;">🤲 أذكار/عدّاد</div>
+            <div id="worship-type-memorize" class="chip-choice selected" onclick="selectWorshipType('memorize')" style="flex:1;text-align:center;border-color:var(--cat-god);">حفظ</div>
+            <div id="worship-type-simple" class="chip-choice" onclick="selectWorshipType('simple')" style="flex:1;text-align:center;border-color:var(--cat-god);">أذكار</div>
         </div>
         <input type="text" id="add-worship-name" placeholder="الاسم (مثال: القرآن الكريم / جزء تبارك / أذكار الصباح)" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:right;font-family:inherit;">
         <div id="worship-pages-field">
             <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">عدد الصفحات:</label>
             <input type="number" id="add-worship-pages" min="1" max="700" value="20" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:14px;text-align:center;">
+            <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل صفحة:</label>
+            <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+                <input type="number" id="add-worship-page-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+                <input type="number" id="add-worship-page-minutes" min="0" max="59" value="15" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+            </div>
         </div>
         <div id="worship-target-field" style="display:none;">
             <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">العدد المستهدف يومياً (اختياري):</label>
@@ -1116,7 +1217,7 @@
             <div class="color-swatch" data-color="#f1c40f" style="background:#f1c40f;" onclick="selectWorshipColor('#f1c40f',this)"></div>
             <div class="color-swatch" data-color="#3498db" style="background:#3498db;" onclick="selectWorshipColor('#3498db',this)"></div>
             <div class="color-swatch" data-color="#9b59b6" style="background:#9b59b6;" onclick="selectWorshipColor('#9b59b6',this)"></div>
-            <div class="color-swatch color-swatch-add-btn" onclick="document.getElementById('worship-custom-color-input').click()" style="background:#222232;border:1px dashed #444;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fa-solid fa-plus" style="font-size:12px;"></i></div>
+            <div class="color-swatch color-swatch-add-btn" onclick="openCustomColorPickerModal('worship')" style="background:#222232;border:1px dashed #444;display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fa-solid fa-plus" style="font-size:12px;"></i></div>
             <input type="color" id="worship-custom-color-input" style="display:none;" onchange="addCustomWorshipColor(this.value)">
         </div>
         <div id="worship-color-exhausted-hint" style="display:none;font-size:10px;color:var(--status-work);margin-bottom:10px;">⚠ استُخدمت كل الألوان — سيتكرر أقرب لون متاح.</div>
@@ -1133,6 +1234,27 @@
     </div>
 </div>
 
+<!-- نافذة قص وتموضع الصورة المشتركة: تظهر فور اختيار أي صورة بأي مكان بالتطبيق قبل حفظها -->
+<div id="image-cropper-modal" class="image-cropper-overlay">
+    <div class="cropper-box">
+        <h3 style="margin:0 0 12px 0;font-size:15px;color:var(--text-color);"><i class="fa-solid fa-crop-simple"></i> اختر جزء الصورة</h3>
+        <div id="cropper-viewport">
+            <img id="cropper-image" src="" alt="">
+        </div>
+        <div class="cropper-zoom-row">
+            <i class="fa-solid fa-magnifying-glass-minus" style="color:var(--text-muted);font-size:12px;"></i>
+            <input type="range" id="cropper-zoom-slider" min="100" max="400" value="100" oninput="onCropperZoomSlider(this.value)">
+            <i class="fa-solid fa-magnifying-glass-plus" style="color:var(--text-muted);font-size:12px;"></i>
+        </div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:14px;">اسحب الصورة لتحريكها ضمن الإطار، وقرّب/بعّد بإصبعين أو بالشريط أعلاه</div>
+        <div style="display:flex;gap:10px;">
+            <button class="btn-prime clickable" style="background:var(--accent-color);flex:1;" onclick="confirmImageCrop()"><i class="fa-solid fa-check"></i> تأكيد</button>
+            <button class="btn-prime clickable" style="background:#262636;color:#fff;flex:1;" onclick="closeImageCropper()">إلغاء</button>
+        </div>
+    </div>
+</div>
+<canvas id="cropper-hidden-canvas" width="230" height="230" style="display:none;"></canvas>
+
 <div class="bottom-nav">
     <div id="nav-tasks" class="nav-item clickable active" onclick="switchScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></div>
     <div id="nav-routine" class="nav-item clickable" onclick="switchScreen('routine')"><i class="fa-solid fa-network-wired"></i><span>الروتين</span></div>
@@ -1147,6 +1269,129 @@
 function playSuccessSound(){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(587.33,c.currentTime);o.frequency.setValueAtTime(880,c.currentTime+0.1);g.gain.setValueAtTime(0.1,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.4);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+0.4);}catch(e){}}
 
 // ================================================================
+// نافذة قص وتموضع الصورة المشتركة (تُستخدم من كل نقاط رفع الصور بالتطبيق)
+// ================================================================
+const CROPPER_FRAME_SIZE=230; // يطابق أبعاد #cropper-viewport و canvas بالبكسل
+let cropperImgNatural={w:0,h:0};
+let cropperOffset={x:0,y:0}; // موضع الزاوية العلوية اليسرى للصورة (بعد التكبير) داخل الإطار
+let cropperScale=1; // مضاعف تكبير إضافي فوق مقياس "التغطية الأساسية" (1 = بدون تكبير إضافي)
+let cropperBaseScale=1; // المقياس الذي تُغطّي عنده الصورة كامل الإطار تماماً (يعادل object-fit:cover)
+let cropperConfirmCallback=null;
+
+// افتح نافذة القص: srcDataUrl = مصدر الصورة (نتيجة FileReader)، onConfirm(dataUrl) تُستدعى بالنتيجة النهائية بعد الضغط على "تأكيد"
+function openImageCropper(srcDataUrl,onConfirm){
+    cropperConfirmCallback=onConfirm;
+    const img=document.getElementById('cropper-image');
+    img.onload=()=>{
+        cropperImgNatural.w=img.naturalWidth||1;
+        cropperImgNatural.h=img.naturalHeight||1;
+        cropperBaseScale=Math.max(CROPPER_FRAME_SIZE/cropperImgNatural.w,CROPPER_FRAME_SIZE/cropperImgNatural.h);
+        cropperScale=1;
+        const dispW=cropperImgNatural.w*cropperBaseScale,dispH=cropperImgNatural.h*cropperBaseScale;
+        cropperOffset.x=(CROPPER_FRAME_SIZE-dispW)/2;
+        cropperOffset.y=(CROPPER_FRAME_SIZE-dispH)/2;
+        document.getElementById('cropper-zoom-slider').value=100;
+        renderCropperTransform();
+    };
+    img.src=srcDataUrl;
+    document.getElementById('image-cropper-modal').style.display='flex';
+}
+function closeImageCropper(){
+    document.getElementById('image-cropper-modal').style.display='none';
+    cropperConfirmCallback=null;
+}
+function renderCropperTransform(){
+    const img=document.getElementById('cropper-image');
+    const totalScale=cropperBaseScale*cropperScale;
+    img.style.width=cropperImgNatural.w+'px';
+    img.style.height=cropperImgNatural.h+'px';
+    img.style.transform=`translate(${cropperOffset.x}px,${cropperOffset.y}px) scale(${totalScale})`;
+}
+function clampCropperOffset(){
+    const totalScale=cropperBaseScale*cropperScale;
+    const dispW=cropperImgNatural.w*totalScale,dispH=cropperImgNatural.h*totalScale;
+    const minX=CROPPER_FRAME_SIZE-dispW,maxX=0;
+    const minY=CROPPER_FRAME_SIZE-dispH,maxY=0;
+    cropperOffset.x=Math.min(maxX,Math.max(minX,cropperOffset.x));
+    cropperOffset.y=Math.min(maxY,Math.max(minY,cropperOffset.y));
+}
+// يكبّر/يصغّر مع إبقاء مركز الإطار مثبّتاً على نفس نقطة الصورة (تجربة تكبير سلسة)
+function setCropperScale(newScale,anchorX,anchorY){
+    newScale=Math.max(1,Math.min(4,newScale));
+    const ax=(anchorX!==undefined)?anchorX:CROPPER_FRAME_SIZE/2;
+    const ay=(anchorY!==undefined)?anchorY:CROPPER_FRAME_SIZE/2;
+    const oldScale=cropperBaseScale*cropperScale;
+    const newTotalScale=cropperBaseScale*newScale;
+    const imgX=(ax-cropperOffset.x)/oldScale,imgY=(ay-cropperOffset.y)/oldScale;
+    cropperScale=newScale;
+    cropperOffset.x=ax-imgX*newTotalScale;
+    cropperOffset.y=ay-imgY*newTotalScale;
+    clampCropperOffset();
+    renderCropperTransform();
+}
+function onCropperZoomSlider(val){setCropperScale(parseFloat(val)/100);}
+function confirmImageCrop(){
+    const canvas=document.getElementById('cropper-hidden-canvas');
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,CROPPER_FRAME_SIZE,CROPPER_FRAME_SIZE);
+    const img=document.getElementById('cropper-image');
+    const totalScale=cropperBaseScale*cropperScale;
+    ctx.drawImage(img,cropperOffset.x,cropperOffset.y,cropperImgNatural.w*totalScale,cropperImgNatural.h*totalScale);
+    const dataUrl=canvas.toDataURL('image/png',0.85);
+    const cb=cropperConfirmCallback;
+    closeImageCropper();
+    if(cb)cb(dataUrl);
+}
+// سحب باللمس/الماوس لتحريك الصورة خلف الإطار الثابت + Pinch-to-zoom باللمس
+(function setupImageCropperViewportEvents(){
+    const vp=document.getElementById('cropper-viewport');
+    if(!vp)return;
+    let dragging=false,startX=0,startY=0,startOffX=0,startOffY=0;
+    let pinchStartDist=0,pinchStartScale=1;
+    const dist=(t1,t2)=>Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);
+    vp.addEventListener('mousedown',e=>{
+        dragging=true;startX=e.clientX;startY=e.clientY;startOffX=cropperOffset.x;startOffY=cropperOffset.y;
+    });
+    window.addEventListener('mousemove',e=>{
+        if(!dragging)return;
+        cropperOffset.x=startOffX+(e.clientX-startX);
+        cropperOffset.y=startOffY+(e.clientY-startY);
+        clampCropperOffset();renderCropperTransform();
+    });
+    window.addEventListener('mouseup',()=>{dragging=false;});
+    vp.addEventListener('touchstart',e=>{
+        if(e.touches.length===1){
+            dragging=true;startX=e.touches[0].clientX;startY=e.touches[0].clientY;
+            startOffX=cropperOffset.x;startOffY=cropperOffset.y;
+        } else if(e.touches.length===2){
+            dragging=false;
+            pinchStartDist=dist(e.touches[0],e.touches[1]);
+            pinchStartScale=cropperScale;
+        }
+    },{passive:true});
+    vp.addEventListener('touchmove',e=>{
+        if(e.touches.length===1&&dragging){
+            e.preventDefault();
+            cropperOffset.x=startOffX+(e.touches[0].clientX-startX);
+            cropperOffset.y=startOffY+(e.touches[0].clientY-startY);
+            clampCropperOffset();renderCropperTransform();
+        } else if(e.touches.length===2){
+            e.preventDefault();
+            const d=dist(e.touches[0],e.touches[1]);
+            const ratio=d/(pinchStartDist||d);
+            const newScale=pinchStartScale*ratio;
+            const rect=vp.getBoundingClientRect();
+            const midX=((e.touches[0].clientX+e.touches[1].clientX)/2)-rect.left;
+            const midY=((e.touches[0].clientY+e.touches[1].clientY)/2)-rect.top;
+            setCropperScale(newScale,midX,midY);
+            document.getElementById('cropper-zoom-slider').value=Math.round(cropperScale*100);
+        }
+    },{passive:false});
+    vp.addEventListener('touchend',e=>{if(e.touches.length===0)dragging=false;});
+    vp.addEventListener('touchcancel',()=>{dragging=false;});
+})();
+
+// ================================================================
 // قواعد البيانات
 // ================================================================
 let routineDatabase=JSON.parse(localStorage.getItem('routineDB'))||{sun:[],mon:[],tue:[],wed:[],thu:[],fri:[],sat:[]};
@@ -1159,6 +1404,11 @@ let seriesDatabase=JSON.parse(localStorage.getItem('seriesDB'))||[];
 // قاعدة بيانات مستقلة تماماً لتبويب "السلاسل" الجديد (مسلسلات/محتوى ترفيهي) — لا علاقة لها بـ seriesDatabase (فقه النفس)
 let newSeriesDatabase=JSON.parse(localStorage.getItem('newSeriesDB'))||[];
 let worshipDatabase=JSON.parse(localStorage.getItem('worshipDB'))||[];
+// إنشاء تلقائي دائم لمهمة "القرآن الكريم" — تضمن ظهورها لكل مستخدم (جديد أو حالي) دون تكرارها
+if(!worshipDatabase.some(w=>w.isDefaultQuran===true)){
+    worshipDatabase.push({id:'quran-default-fixed',name:'القرآن الكريم',type:'reading',totalPages:604,pagesReadCount:0,lastAssignedToPage:0,khatmaCount:0,color:'#10ac84',isDefaultQuran:true});
+    saveWorship();
+}
 // ترقية البيانات القديمة: إضافة lectures إن لم تكن موجودة
 subjectsDatabase.forEach(s=>{if(!s.lectures)s.lectures=[];});
 let stationTimesDB=JSON.parse(localStorage.getItem('stationTimesDB'))||{};
@@ -1318,21 +1568,37 @@ function stopAutoScroll(){
 // السحب باللمس (تمرير + إفلات صحيح)
 // ================================================================
 function addTouchDrag(card,getTaskId,onDropCb){
-    let active=false,startX=0,startY=0,ghost=null,curZone=null;
+    let active=false,startX=0,startY=0,ghost=null,curZone=null,pressTimer=null,cancelled=false;
+    const LONGPRESS_DRAG_MS=420; // ضغطة معتدلة: ليست سريعة خاطفة ولا طويلة جداً
+    const MOVE_CANCEL_THRESHOLD=12; // إذا تحرك الإصبع أكثر من هذا قبل انتهاء المؤقت، يُعتبر سكرول ويُلغى السحب
+
     card.addEventListener('touchstart',e=>{
         startX=e.touches[0].clientX;startY=e.touches[0].clientY;
-    },{passive:true});
-    card.addEventListener('touchmove',e=>{
-        const dx=Math.abs(e.touches[0].clientX-startX),dy=Math.abs(e.touches[0].clientY-startY);
-        if(!active&&(dx>10||dy>10)){
+        cancelled=false;
+        clearTimeout(pressTimer);
+        pressTimer=setTimeout(()=>{
+            if(cancelled)return;
             active=true;isDraggingNow=true;
             card.style.opacity='0.35';
             // إنشاء ghost
             ghost=card.cloneNode(true);
             ghost.style.cssText=`position:fixed;opacity:0.7;pointer-events:none;z-index:99999;width:${card.offsetWidth}px;transform:scale(1.03);transition:none;border:2px dashed var(--accent-color);border-radius:12px;`;
+            ghost.style.left=(startX-card.offsetWidth/2)+'px';
+            ghost.style.top=(startY-30)+'px';
             document.body.appendChild(ghost);
+            if(navigator.vibrate)navigator.vibrate(15); // اهتزاز خفيف اختياري كتأكيد بصري/حسي لبدء السحب
+        },LONGPRESS_DRAG_MS);
+    },{passive:true});
+    card.addEventListener('touchmove',e=>{
+        const dx=Math.abs(e.touches[0].clientX-startX),dy=Math.abs(e.touches[0].clientY-startY);
+        if(!active){
+            // لسا ما بدأ السحب: إذا تحرك الإصبع بشكل واضح قبل انتهاء المؤقت، هذا سكرول عادي وليس سحب → ألغِ المؤقت
+            if(dx>MOVE_CANCEL_THRESHOLD||dy>MOVE_CANCEL_THRESHOLD){
+                cancelled=true;
+                clearTimeout(pressTimer);
+            }
+            return; // لا تفعّل السحب، واسمح بالتمرير الطبيعي للصفحة
         }
-        if(!active)return;
         e.preventDefault();
         const cx=e.touches[0].clientX,cy=e.touches[0].clientY;
         if(ghost){ghost.style.left=(cx-card.offsetWidth/2)+'px';ghost.style.top=(cy-30)+'px';}
@@ -1347,6 +1613,8 @@ function addTouchDrag(card,getTaskId,onDropCb){
         }
     },{passive:false});
     card.addEventListener('touchend',e=>{
+        clearTimeout(pressTimer);
+        cancelled=true;
         if(!active){active=false;return;}
         active=false;isDraggingNow=false;
         card.style.opacity='';
@@ -1358,6 +1626,11 @@ function addTouchDrag(card,getTaskId,onDropCb){
             else dispatchTouchDrop(getTaskId(),curZone);
             curZone=null;
         }
+    },{passive:true});
+    card.addEventListener('touchcancel',()=>{
+        clearTimeout(pressTimer);cancelled=true;active=false;isDraggingNow=false;
+        card.style.opacity='';if(ghost){ghost.remove();ghost=null;}
+        if(curZone){curZone.classList.remove('drag-over','drag-over-period');curZone=null;}
     },{passive:true});
 }
 
@@ -1417,6 +1690,12 @@ function findLectureUnit(unitId){
             if(p)return{unit:p,parent:w,type:'worship-memorize'};
         }
     }
+    for(const b of booksDatabase){
+        if(b.mode==='memorize'&&b.pages){
+            const p=b.pages.find(x=>x.id===unitId);
+            if(p)return{unit:p,parent:b,type:'book-memorize'};
+        }
+    }
     return null;
 }
 // عند إنجاز مهمة مرتبطة بمحاضرة/صفحة حفظ: زيادة عداد الإنجاز ونسبة الإتقان
@@ -1426,7 +1705,7 @@ function markUnitProgress(unitId,secondsSpent){
     found.unit.timesCompleted=(found.unit.timesCompleted||0)+1;
     found.unit.totalSecondsSpent=(found.unit.totalSecondsSpent||0)+(secondsSpent||0);
     found.unit.masteryPercent=masteryPercent(found.unit.timesCompleted);
-    if(found.type==='subject')saveSubjects();else if(found.type==='worship-memorize')saveWorship();
+    if(found.type==='subject')saveSubjects();else if(found.type==='worship-memorize')saveWorship();else if(found.type==='book-memorize')saveBooks();
 }
 // نسخة آمنة من الاحتساب المزدوج - تُستدعى عند تأكيد الإنجاز فقط
 function safeMarkUnitProgress(task){
@@ -1444,6 +1723,7 @@ function findBinaryUnit(unitId){
         if(e)return{unit:e,parent:s,type:'series'};
     }
     for(const b of booksDatabase){
+        if(!b.lessons)continue; // كتب القراءة/الحفظ لا تملك lessons[] — تُستثنى من نظام الإنجاز الثنائي
         const l=b.lessons.find(x=>x.id===unitId);
         if(l)return{unit:l,parent:b,type:'book'};
     }
@@ -1488,26 +1768,41 @@ function confirmWorshipTaskDone(){
             const w=worshipDatabase.find(x=>x.id===t.worshipId);
             if(w){
                 const pagesInTask=Math.max(1,(t.toPage||1)-(t.fromPage||1)+1);
-                w.pagesReadCount=Math.min(w.totalPages||pagesInTask,(w.pagesReadCount||0)+pagesInTask);
+                // بدون سقف هنا (خلافاً لقراءة الكتب) كي لا تُفقد أي صفحات زائدة تتجاوز 604 — تُرصد فوراً بمنطق عداد الختمة بالأسفل
+                w.pagesReadCount=(w.pagesReadCount||0)+pagesInTask;
                 saveWorship();
+                if(w.pagesReadCount>=w.totalPages){
+                    w.khatmaCount=(w.khatmaCount||0)+1;
+                    w.pagesReadCount=w.pagesReadCount-w.totalPages; // بدل الصفر، حفاظاً على أي صفحات زائدة قرأها ضمن نفس المهمة
+                    if(w.pagesReadCount<0)w.pagesReadCount=0;
+                    saveWorship();
+                    showToast(`🎉 تهانينا! أتممت ختمة رقم ${w.khatmaCount}`, w.color);
+                }
+            }
+        } else if(t.unitKind==='book-read'&&t.bookId){
+            const b=booksDatabase.find(x=>x.id===t.bookId);
+            if(b){
+                const pagesInTask=Math.max(1,(t.toPage||1)-(t.fromPage||1)+1);
+                b.pagesReadCount=Math.min(b.totalPages||pagesInTask,(b.pagesReadCount||0)+pagesInTask);
+                saveBooks();
             }
         }
         t.progressCounted=true;
     }
     saveTasks();closeActiveCompletionModal();playSuccessSound();renderDailyTasks();
-    showToast('أُنجزت المهمة 🎉','var(--cat-god)');
+    showToast('أُنجزت المهمة 🎉',t.subjectColor||'var(--cat-god)');
     const ov=document.getElementById('celebration-overlay');ov.style.display='flex';setTimeout(()=>ov.style.display='none',1800);
 }
-// -- زر "تعديل" داخل نافذة إنجاز العبادة: صفحات القراءة تُعدَّل برقمين، والعبادات البسيطة عبر نافذة التعديل العامة --
+// -- زر "تعديل" داخل نافذة إنجاز العبادة/قراءة الكتاب: صفحات القراءة تُعدَّل برقمين، وباقي الأنواع عبر نافذة التعديل العامة --
 function editWorshipTaskFromModal(){
     if(!pendingUnitCompletionTaskId)return;
     const tid=pendingUnitCompletionTaskId;
     const t=storedDailyTasks.find(x=>x.id===tid);if(!t)return;
     closeActiveCompletionModal();
-    if(t.unitKind==='worship-read')openWorshipReadEditModal(tid);
+    if(t.unitKind==='worship-read'||t.unitKind==='book-read')openWorshipReadEditModal(tid);
     else openEditTaskModal(tid);
 }
-// -- نافذة تعديل نطاق صفحات قراءة عبادة (رقمين فقط، حفظ مباشر) --
+// -- نافذة تعديل نطاق صفحات قراءة (عبادة أو كتاب) — رقمين فقط، حفظ مباشر --
 let editingWorshipReadTaskId=null;
 function openWorshipReadEditModal(taskId){
     const t=storedDailyTasks.find(x=>x.id===taskId);if(!t)return;
@@ -1523,7 +1818,10 @@ function saveWorshipReadEdit(){
     const from=parseInt(document.getElementById('worship-read-edit-from').value)||1;
     const to=parseInt(document.getElementById('worship-read-edit-to').value)||from;
     t.fromPage=Math.min(from,to);t.toPage=Math.max(from,to);
-    if(t.worshipId){
+    if(t.unitKind==='book-read'&&t.bookId){
+        const b=booksDatabase.find(x=>x.id===t.bookId);
+        if(b)t.title=`${b.name} — قراءة من صفحة ${t.fromPage} إلى ${t.toPage}`;
+    } else if(t.worshipId){
         const w=worshipDatabase.find(x=>x.id===t.worshipId);
         if(w)t.title=`${w.name} — قراءة من صفحة ${t.fromPage} إلى ${t.toPage}`;
     }
@@ -1555,6 +1853,18 @@ function openBookCompletion(taskId){
     document.getElementById('book-completion-modal').style.display='flex';
 }
 function closeBookCompletionModal(){closeActiveCompletionModal();}
+
+// -- نافذة إنجاز قراءة كتاب (نظام صفحات) — إنجاز مباشر بدون خيار ملاحظات، بثيم لون الكتاب --
+function openBookReadCompletion(taskId){
+    const t=storedDailyTasks.find(x=>x.id===taskId);if(!t)return;
+    pendingUnitCompletionTaskId=taskId;
+    activeCompletionModalId='book-read-completion-modal';
+    const shortTitle=t.title.length>44?t.title.slice(0,44)+'…':t.title;
+    const titleEl=document.getElementById('book-read-completion-title');
+    titleEl.innerText=shortTitle;
+    titleEl.style.color=t.subjectColor||'var(--cat-book)';
+    document.getElementById('book-read-completion-modal').style.display='flex';
+}
 
 // -- إغلاق عام لأي نافذة إنجاز مفتوحة حالياً --
 function closeActiveCompletionModal(){
@@ -1686,21 +1996,25 @@ function toggleGoalEditInner(){document.getElementById('goal-edit-inner').classL
 // توزيع المهام على الفترات (بديل الرادار)
 // ================================================================
 function dropTaskOnPeriod(taskId,dayKey,periodKey){
-    if(!periodTasksDB[dayKey])periodTasksDB[dayKey]={};
-    // احذف المهمة من أي فترة أخرى بنفس اليوم أولاً لمنع التكرار عند السحب بين الفترات
-    Object.keys(periodTasksDB[dayKey]).forEach(sk=>{
-        if(sk!==periodKey&&periodTasksDB[dayKey][sk]&&periodTasksDB[dayKey][sk].includes(taskId)){
-            periodTasksDB[dayKey][sk]=periodTasksDB[dayKey][sk].filter(id=>id!==taskId);
-        }
+    // احذف المهمة من أي فترة في أي يوم (وليس فقط نفس اليوم) لمنع أي تكرار عبر الأيام
+    Object.keys(periodTasksDB).forEach(dk=>{
+        Object.keys(periodTasksDB[dk]||{}).forEach(sk=>{
+            if((dk!==dayKey||sk!==periodKey)&&periodTasksDB[dk][sk]&&periodTasksDB[dk][sk].includes(taskId)){
+                periodTasksDB[dk][sk]=periodTasksDB[dk][sk].filter(id=>id!==taskId);
+            }
+        });
     });
+    if(!periodTasksDB[dayKey])periodTasksDB[dayKey]={};
     if(!periodTasksDB[dayKey][periodKey])periodTasksDB[dayKey][periodKey]=[];
-    // تجنب التكرار داخل نفس الفترة
     if(!periodTasksDB[dayKey][periodKey].includes(taskId)){
         periodTasksDB[dayKey][periodKey].push(taskId);
-        savePeriodTasks();
-        showToast(`تم وضع المهمة في ${stationLabelsArabic[periodKey]}`);
-        renderHierarchicalTopDownSystem();
     }
+    // حدّث targetDay للمهمة نفسها لتطابق اليوم الجديد فعلياً وتجنب أي تعارض مع صندوق "مهام غير موزّعة"
+    const t=storedDailyTasks.find(x=>x.id===taskId);
+    if(t)t.targetDay=dayKey;
+    savePeriodTasks();saveTasks();
+    showToast(`تم وضع المهمة في ${stationLabelsArabic[periodKey]}`);
+    renderHierarchicalTopDownSystem();
 }
 function removeTaskFromPeriod(taskId,dayKey,periodKey){
     if(!periodTasksDB[dayKey]||!periodTasksDB[dayKey][periodKey])return;
@@ -1715,23 +2029,27 @@ function buildDayPeriodsView(dayKey){
     stationKeys.forEach(sk=>{
         const times=getStationEffectiveTimes(sk);
         const fromF=formatTime12(times.from),toF=formatTime12(times.to);
-        // حساب الفراغ في هذه الفترة (نفس منطق الصفحة الأولى)
+        // حساب الفراغ في هذه الفترة (نفس منطق الصفحة الأولى) — مع خصم الوقت المتوقع للمهام المُسندة فعلياً لهذه الفترة
         let occ=0;const tot=times.from&&times.to?calcHDiff(times.from,times.to):0;
         if(times.from&&times.to){
             sl.forEach(s=>{if(s.from&&s.to)occ+=calcOverlap(times.from,times.to,s.from,s.to);});
             rl.forEach(s=>{if(!s.isSuspended&&s.from&&s.to)occ+=calcOverlap(times.from,times.to,s.from,s.to);});
         }
-        const fr=Math.max(0,tot-occ);
+        const periodTasks=(periodTasksDB[dayKey]&&periodTasksDB[dayKey][sk])?periodTasksDB[dayKey][sk]:[];
+        let tasksSeconds=0;
+        periodTasks.forEach(tid=>{const t=storedDailyTasks.find(x=>x.id===tid);if(t)tasksSeconds+=(t.expectedSeconds||0);});
+        const fr=Math.max(0,tot-occ-(tasksSeconds/3600));
         const freeBadge=fr>0?`<span style="font-size:9px;color:var(--status-done);background:rgba(16,172,132,0.12);border:1px solid rgba(16,172,132,0.3);border-radius:4px;padding:1px 5px;"><i class="fa-solid fa-circle" style="font-size:5px;"></i> فراغ ${fr>=1?fr.toFixed(1)+' س':(fr*60).toFixed(0)+' د'}</span>`:'';
 
-        const periodTasks=(periodTasksDB[dayKey]&&periodTasksDB[dayKey][sk])?periodTasksDB[dayKey][sk]:[];
         let pillsHtml='';
+        let cleanedIds=[]; // لتتبع أي معرّفات يجب حذفها فعلياً من periodTasksDB لعدم وجود مهمة مقابلة لها
         periodTasks.forEach(tid=>{
             const t=storedDailyTasks.find(x=>x.id===tid);
-            const name=t?t.title.substring(0,26):'(محذوفة)';
-            const gc=t?(categoryConfig[t.category]||categoryConfig['noCategory']):null;
-            const pc=t&&t.subjectColor?t.subjectColor:(gc?gc.color:'var(--accent-color)');
-            const badge=gc?`<span class="category-badge" style="background:${pc};font-size:9px;flex-shrink:0;">${gc.name}</span>`:'';
+            if(!t){cleanedIds.push(tid);return;} // تجاهل تماماً بدل عرض "(محذوفة)"
+            const name=t.title.substring(0,26);
+            const gc=categoryConfig[t.category]||categoryConfig['noCategory'];
+            const pc=t.subjectColor?t.subjectColor:gc.color;
+            const badge=`<span class="category-badge" style="background:${pc};font-size:9px;flex-shrink:0;">${gc.name}</span>`;
             pillsHtml+=`<div class="period-task-pill" draggable="true" id="period-task-dom-${dayKey}-${sk}-${tid}" style="border-color:${pc};background:${pc}18;">
                 <span style="display:flex;align-items:center;gap:5px;overflow:hidden;flex:1;">
                     ${badge}
@@ -1740,6 +2058,10 @@ function buildDayPeriodsView(dayKey){
                 <span class="pill-remove" onclick="removeTaskFromPeriod('${tid}','${dayKey}','${sk}')" title="إزالة"><i class="fa-solid fa-xmark"></i></span>
             </div>`;
         });
+        if(cleanedIds.length>0){
+            periodTasksDB[dayKey][sk]=periodTasksDB[dayKey][sk].filter(id=>!cleanedIds.includes(id));
+            savePeriodTasks();
+        }
         if(!pillsHtml)pillsHtml=`<span style="color:var(--text-muted);font-size:10px;padding:4px;">اسحب مهمة هنا</span>`;
         html+=`<div class="day-period-slot">
             <div class="day-period-title">
@@ -1775,9 +2097,11 @@ function handleSubjectIconUpload(event){
     const f=event.target.files[0];if(!f)return;
     const r=new FileReader();
     r.onload=e=>{
-        pendingSubjectIcon=e.target.result;
-        const prev=document.getElementById('add-subject-icon-preview');
-        prev.src=pendingSubjectIcon;prev.style.display='block';
+        openImageCropper(e.target.result,croppedDataUrl=>{
+            pendingSubjectIcon=croppedDataUrl;
+            const prev=document.getElementById('add-subject-icon-preview');
+            prev.src=pendingSubjectIcon;prev.style.display='block';
+        });
     };
     r.readAsDataURL(f);
 }
@@ -1792,23 +2116,19 @@ function getNextAutoColor(){
     const free=pool.find(c=>!used.includes(c));
     return free||subjectColorPalette[subjectsDatabase.length%subjectColorPalette.length];
 }
-// إعادة بناء صف السواتش: تُعرض فقط الألوان المستخدمة فعلياً + لون واحد متاح إضافي (بدل عرض كل اللوحة)
+// إعادة بناء صف السواتش: تُعرض دائماً كل ألوان اللوحة، مع تمييز المستخدم منها بصرياً (باهت + علامة صح) بدل إخفائه — بنفس نمط باقي التصنيفات
 function rebuildSubjectColorSwatchesDOM(){
     const row=document.getElementById('subject-color-swatches');
     if(!row)return;
     const plusBtn=row.querySelector('.color-swatch-add-btn');
     row.querySelectorAll('.color-swatch:not(.color-swatch-add-btn)').forEach(s=>s.remove());
     const used=getUsedSubjectColors();
-    const nextFree=getNextAutoColor();
-    const displayColors=[];
-    const seen=new Set();
-    used.forEach(c=>{if(c&&!seen.has(c)){displayColors.push(c);seen.add(c);}});
-    if(nextFree&&!seen.has(nextFree)){displayColors.push(nextFree);seen.add(nextFree);}
+    const pool=subjectColorPalette.slice(0,SUBJECT_COLOR_CAP);
     const frag=document.createDocumentFragment();
-    displayColors.forEach(c=>{
+    pool.forEach(c=>{
         const d=document.createElement('div');
         d.className='color-swatch';d.setAttribute('data-color',c);d.style.background=c;
-        if(c!==nextFree){d.classList.add('used');d.title='مستخدم حالياً';}
+        if(used.includes(c)){d.classList.add('used');d.title='مستخدم حالياً (يمكن اختياره مجدداً)';}
         d.onclick=function(){selectSubjectColor(c,d);};
         frag.appendChild(d);
     });
@@ -1849,23 +2169,19 @@ function getNextAutoBookColor(){
     const free=pool.find(c=>!used.includes(c));
     return free||bookColorPalette[booksDatabase.length%bookColorPalette.length];
 }
-// إعادة بناء صف السواتش: تُعرض فقط الألوان المستخدمة فعلياً + لون واحد متاح إضافي
+// إعادة بناء صف السواتش: تُعرض دائماً كل الألوان الخمسة الثابتة، مع تمييز المستخدم منها بصرياً (باهت + علامة صح) بدل إخفائه
 function rebuildBookColorSwatchesDOM(){
     const row=document.getElementById('book-color-swatches');
     if(!row)return;
     const plusBtn=row.querySelector('.color-swatch-add-btn');
     row.querySelectorAll('.color-swatch:not(.color-swatch-add-btn)').forEach(s=>s.remove());
     const used=getUsedBookColors();
-    const nextFree=getNextAutoBookColor();
-    const displayColors=[];
-    const seen=new Set();
-    used.forEach(c=>{if(c&&!seen.has(c)){displayColors.push(c);seen.add(c);}});
-    if(nextFree&&!seen.has(nextFree)){displayColors.push(nextFree);seen.add(nextFree);}
+    const pool=bookColorPalette.slice(0,BOOK_COLOR_CAP);
     const frag=document.createDocumentFragment();
-    displayColors.forEach(c=>{
+    pool.forEach(c=>{
         const d=document.createElement('div');
         d.className='color-swatch';d.setAttribute('data-color',c);d.style.background=c;
-        if(c!==nextFree){d.classList.add('used');d.title='مستخدم حالياً';}
+        if(used.includes(c)){d.classList.add('used');d.title='مستخدم حالياً (يمكن اختياره مجدداً)';}
         d.onclick=function(){selectBookColor(c,d);};
         frag.appendChild(d);
     });
@@ -1873,10 +2189,6 @@ function rebuildBookColorSwatchesDOM(){
 }
 function refreshBookColorSwatches(){
     rebuildBookColorSwatchesDOM();
-    const used=getUsedBookColors();
-    const pool=bookColorPalette.slice(0,BOOK_COLOR_CAP);
-    const anyFree=pool.some(c=>!used.includes(c));
-    document.getElementById('book-color-exhausted-hint').style.display=anyFree?'none':'block';
     const nc=getNextAutoBookColor();
     selectedBookColor=nc;
     const swatches=document.querySelectorAll('#book-color-swatches .color-swatch:not(.color-swatch-add-btn)');
@@ -1896,23 +2208,19 @@ function getNextAutoSeriesColor(){
     const free=seriesColorPalette.find(c=>!used.includes(c));
     return free||seriesColorPalette[seriesDatabase.length%seriesColorPalette.length];
 }
-// إعادة بناء صف السواتش: تُعرض فقط الألوان المستخدمة فعلياً + لون واحد متاح إضافي
+// إعادة بناء صف السواتش: تُعرض دائماً كل الألوان الخمسة الثابتة، مع تمييز المستخدم منها بصرياً (باهت + علامة صح) بدل إخفائه
 function rebuildSeriesColorSwatchesDOM(){
     const row=document.getElementById('series-color-swatches');
     if(!row)return;
     const plusBtn=row.querySelector('.color-swatch-add-btn');
     row.querySelectorAll('.color-swatch:not(.color-swatch-add-btn)').forEach(s=>s.remove());
     const used=getUsedSeriesColors();
-    const nextFree=getNextAutoSeriesColor();
-    const displayColors=[];
-    const seen=new Set();
-    used.forEach(c=>{if(c&&!seen.has(c)){displayColors.push(c);seen.add(c);}});
-    if(nextFree&&!seen.has(nextFree)){displayColors.push(nextFree);seen.add(nextFree);}
+    const pool=seriesColorPalette.slice(0,5);
     const frag=document.createDocumentFragment();
-    displayColors.forEach(c=>{
+    pool.forEach(c=>{
         const d=document.createElement('div');
         d.className='color-swatch';d.setAttribute('data-color',c);d.style.background=c;
-        if(c!==nextFree){d.classList.add('used');d.title='مستخدم حالياً';}
+        if(used.includes(c)){d.classList.add('used');d.title='مستخدم حالياً (يمكن اختياره مجدداً)';}
         d.onclick=function(){selectSeriesColor(c,d);};
         frag.appendChild(d);
     });
@@ -1920,9 +2228,6 @@ function rebuildSeriesColorSwatchesDOM(){
 }
 function refreshSeriesColorSwatches(){
     rebuildSeriesColorSwatchesDOM();
-    const used=getUsedSeriesColors();
-    const anyFree=seriesColorPalette.some(c=>!used.includes(c));
-    document.getElementById('series-color-exhausted-hint').style.display=anyFree?'none':'block';
     const nc=getNextAutoSeriesColor();
     selectedSeriesColor=nc;
     const swatches=document.querySelectorAll('#series-color-swatches .color-swatch:not(.color-swatch-add-btn)');
@@ -1942,23 +2247,19 @@ function getNextAutoWorshipColor(){
     const free=worshipColorPalette.find(c=>!used.includes(c));
     return free||worshipColorPalette[worshipDatabase.length%worshipColorPalette.length];
 }
-// إعادة بناء صف السواتش: تُعرض فقط الألوان المستخدمة فعلياً + لون واحد متاح إضافي
+// إعادة بناء صف السواتش: تُعرض دائماً كل الألوان الخمسة الثابتة، مع تمييز المستخدم منها بصرياً (باهت + علامة صح) بدل إخفائه
 function rebuildWorshipColorSwatchesDOM(){
     const row=document.getElementById('worship-color-swatches');
     if(!row)return;
     const plusBtn=row.querySelector('.color-swatch-add-btn');
     row.querySelectorAll('.color-swatch:not(.color-swatch-add-btn)').forEach(s=>s.remove());
     const used=getUsedWorshipColors();
-    const nextFree=getNextAutoWorshipColor();
-    const displayColors=[];
-    const seen=new Set();
-    used.forEach(c=>{if(c&&!seen.has(c)){displayColors.push(c);seen.add(c);}});
-    if(nextFree&&!seen.has(nextFree)){displayColors.push(nextFree);seen.add(nextFree);}
+    const pool=worshipColorPalette.slice(0,5);
     const frag=document.createDocumentFragment();
-    displayColors.forEach(c=>{
+    pool.forEach(c=>{
         const d=document.createElement('div');
         d.className='color-swatch';d.setAttribute('data-color',c);d.style.background=c;
-        if(c!==nextFree){d.classList.add('used');d.title='مستخدم حالياً';}
+        if(used.includes(c)){d.classList.add('used');d.title='مستخدم حالياً (يمكن اختياره مجدداً)';}
         d.onclick=function(){selectWorshipColor(c,d);};
         frag.appendChild(d);
     });
@@ -1966,9 +2267,6 @@ function rebuildWorshipColorSwatchesDOM(){
 }
 function refreshWorshipColorSwatches(){
     rebuildWorshipColorSwatchesDOM();
-    const used=getUsedWorshipColors();
-    const anyFree=worshipColorPalette.some(c=>!used.includes(c));
-    document.getElementById('worship-color-exhausted-hint').style.display=anyFree?'none':'block';
     const nc=getNextAutoWorshipColor();
     selectedWorshipColor=nc;
     const swatches=document.querySelectorAll('#worship-color-swatches .color-swatch:not(.color-swatch-add-btn)');
@@ -1988,23 +2286,19 @@ function getNextAutoNewSeriesColor(){
     const free=newSeriesColorPalette.find(c=>!used.includes(c));
     return free||newSeriesColorPalette[newSeriesDatabase.length%newSeriesColorPalette.length];
 }
-// إعادة بناء صف السواتش: تُعرض فقط الألوان المستخدمة فعلياً + لون واحد متاح إضافي
+// إعادة بناء صف السواتش: تُعرض دائماً كل الألوان الخمسة الثابتة، مع تمييز المستخدم منها بصرياً (باهت + علامة صح) بدل إخفائه
 function rebuildNewSeriesColorSwatchesDOM(){
     const row=document.getElementById('newseries-color-swatches');
     if(!row)return;
     const plusBtn=row.querySelector('.color-swatch-add-btn');
     row.querySelectorAll('.color-swatch:not(.color-swatch-add-btn)').forEach(s=>s.remove());
     const used=getUsedNewSeriesColors();
-    const nextFree=getNextAutoNewSeriesColor();
-    const displayColors=[];
-    const seen=new Set();
-    used.forEach(c=>{if(c&&!seen.has(c)){displayColors.push(c);seen.add(c);}});
-    if(nextFree&&!seen.has(nextFree)){displayColors.push(nextFree);seen.add(nextFree);}
+    const pool=newSeriesColorPalette.slice(0,5);
     const frag=document.createDocumentFragment();
-    displayColors.forEach(c=>{
+    pool.forEach(c=>{
         const d=document.createElement('div');
         d.className='color-swatch';d.setAttribute('data-color',c);d.style.background=c;
-        if(c!==nextFree){d.classList.add('used');d.title='مستخدم حالياً';}
+        if(used.includes(c)){d.classList.add('used');d.title='مستخدم حالياً (يمكن اختياره مجدداً)';}
         d.onclick=function(){selectNewSeriesColor(c,d);};
         frag.appendChild(d);
     });
@@ -2012,9 +2306,6 @@ function rebuildNewSeriesColorSwatchesDOM(){
 }
 function refreshNewSeriesColorSwatches(){
     rebuildNewSeriesColorSwatchesDOM();
-    const used=getUsedNewSeriesColors();
-    const anyFree=newSeriesColorPalette.some(c=>!used.includes(c));
-    document.getElementById('newseries-color-exhausted-hint').style.display=anyFree?'none':'block';
     const nc=getNextAutoNewSeriesColor();
     selectedNewSeriesColor=nc;
     const swatches=document.querySelectorAll('#newseries-color-swatches .color-swatch:not(.color-swatch-add-btn)');
@@ -2025,6 +2316,53 @@ function addCustomNewSeriesColor(hexColor){
     saveCustomColor(hexColor,'newSeriesCustomColors');
     refreshNewSeriesColorSwatches();
     selectNewSeriesColor(hexColor,document.querySelector(`#newseries-color-swatches .color-swatch[data-color="${hexColor}"]`));
+}
+
+// ================================================================
+// نافذة اختيار لون مخصص أنيقة — مشتركة بين التصنيفات الخمسة
+// ================================================================
+const curatedColorPalette=[
+    // خمري
+    '#6b1f2a','#8a2d3b','#5c1a24','#a13d4c',
+    // ذهبي عتيق
+    '#7a5c1f','#9c7a2e','#6b4a15','#b08d3f',
+    // كحلي
+    '#1f2d4a','#2a3f66','#17233d','#34517e',
+    // أخضر غامق
+    '#1f4a35','#2d6b47','#163a28','#3f8a5e',
+    // بنّي جلدي
+    '#4a2f1f','#6b432c','#3a2416','#7a5238',
+    // رمادي فحمي
+    '#2e2e38','#3f3f4d','#24242c','#52525e'
+];
+const customColorAdders={subject:addCustomSubjectColor,book:addCustomBookColor,series:addCustomSeriesColor,worship:addCustomWorshipColor,newseries:addCustomNewSeriesColor};
+let customColorPickerTargetCategory=null;
+function openCustomColorPickerModal(category){
+    customColorPickerTargetCategory=category;
+    const grid=document.getElementById('curated-color-grid');
+    grid.innerHTML='';
+    curatedColorPalette.forEach(c=>{
+        const d=document.createElement('div');
+        d.className='color-swatch';d.style.background=c;
+        d.onclick=function(){pickCuratedColor(c);};
+        grid.appendChild(d);
+    });
+    document.getElementById('custom-color-picker-modal').style.display='flex';
+}
+function closeCustomColorPickerModal(){
+    document.getElementById('custom-color-picker-modal').style.display='none';
+    customColorPickerTargetCategory=null;
+}
+function pickCuratedColor(hex){
+    const fn=customColorAdders[customColorPickerTargetCategory];
+    closeCustomColorPickerModal();
+    if(fn)fn(hex);
+}
+function openNativeColorFallback(){
+    const cat=customColorPickerTargetCategory;
+    closeCustomColorPickerModal();
+    const input=document.getElementById(cat+'-custom-color-input');
+    if(input)input.click();
 }
 
 function renderExistingSubjectsPreview(){
@@ -2140,24 +2478,75 @@ function selectNewSeriesForTask(seriesId){
 }
 function backToNewSeriesList(){selectedModalParentId=null;selectedModalUnitId=null;document.getElementById('modal-newseries-episodes-panel').style.display='none';renderModalNewSeriesPool();}
 
-function renderModalBooksPool(){const c=document.getElementById('modal-books-injection-pool');if(!c)return;if(!booksDatabase.length){c.innerHTML='<div style="color:var(--text-muted);font-size:11px;">لا توجد كتب. أضفها من صفحة المكتبة.</div>';return;}c.innerHTML=booksDatabase.map(b=>`<div class="subject-badge-card clickable" style="border-color:${b.color};" onclick="selectBookForTask('${b.id}')">${b.name}</div>`).join('');}
+function renderModalBooksPool(){
+    const c=document.getElementById('modal-books-injection-pool');if(!c)return;
+    if(!booksDatabase.length){c.innerHTML='<div style="color:var(--text-muted);font-size:11px;">لا توجد كتب. أضفها من صفحة المكتبة.</div>';return;}
+    c.innerHTML=booksDatabase.map(b=>{
+        const mode=b.mode||'study';
+        const icon=mode==='reading'?'<i class="fa-solid fa-book-open"></i>':mode==='memorize'?'<i class="fa-solid fa-brain"></i>':'<i class="fa-solid fa-book"></i>';
+        return`<div class="subject-badge-card clickable" style="border-color:${b.color};" onclick="selectBookForTask('${b.id}')">${icon} ${b.name}</div>`;
+    }).join('');
+}
+let pendingBookReadRange=null;
 function selectBookForTask(bookId){
-    selectedModalUnitId=null;selectedModalParentId=bookId;selectedModalUnitKind='book';
+    selectedModalUnitId=null;selectedModalParentId=bookId;selectedModalUnitKind=null;
     const b=booksDatabase.find(x=>x.id===bookId);if(!b)return;
+    const mode=b.mode||'study';
     document.getElementById('modal-books-injection-pool').innerHTML=`<div class="subject-badge-card" style="border-color:${b.color};border-width:2px;box-shadow:0 0 8px ${b.color};display:flex;align-items:center;gap:8px;">
         <span onclick="backToBooksList()" style="cursor:pointer;color:var(--text-muted);font-size:13px;padding:0 4px;" title="رجوع"><i class="fa-solid fa-arrow-right"></i></span>
         <span>${b.name}</span>
     </div>`;
     const lp=document.getElementById('modal-lessons-panel');const ll=document.getElementById('modal-lessons-list');
-    const pending=(b.lessons||[]).filter(l=>!l.completed);
-    if(!pending.length){lp.style.display='none';showToast('لا توجد دروس متبقية');return;}
-    lp.style.display='block';
-    ll.innerHTML=pending.map(l=>{
-        const idx=b.lessons.indexOf(l)+1;
-        return`<div onclick="selectUnitForTask('${l.id}',this)" style="padding:7px 10px;border-radius:8px;border:1px solid #262636;margin-bottom:5px;cursor:pointer;background:rgba(0,0,0,0.2);"><span style="font-size:12px;">${b.unitType||'درس'} ${idx}: ${l.name}</span></div>`;
-    }).join('');
+    const lbl=document.getElementById('modal-lessons-label');
+    if(mode==='memorize'){
+        selectedModalUnitKind='book-memorize';
+        if(lbl){lbl.style.display='block';lbl.innerText='اختر صفحة حفظ:';}
+        const pages=b.pages||[];
+        if(!pages.length){lp.style.display='none';showToast('لا توجد صفحات لهذا الكتاب');return;}
+        lp.style.display='block';
+        ll.innerHTML=pages.map((p,i)=>{
+            const mp=p.masteryPercent||0;const mc=masteryColor(mp);
+            return`<div onclick="selectUnitForTask('${p.id}',this)" style="padding:7px 10px;border-radius:8px;border:1px solid #262636;margin-bottom:5px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.2);">
+                <span style="font-size:12px;">صفحة ${i+1}: ${p.name}</span>
+                <span style="font-size:10px;color:${mc};font-weight:bold;">${mp}%</span>
+            </div>`;
+        }).join('');
+    } else if(mode==='reading'){
+        selectedModalUnitKind='book-reading';
+        if(lbl)lbl.style.display='none';
+        lp.style.display='block';
+        const remaining=Math.max(0,(b.totalPages||0)-(b.pagesReadCount||0));
+        if(remaining<=0){ll.innerHTML=`<div style="color:var(--status-done);font-size:12px;text-align:center;padding:10px;">تم إنجاز كل الصفحات! 🎉</div>`;return;}
+        const fromDefault=(b.lastAssignedToPage||b.pagesReadCount||0)+1;
+        const toDefault=Math.min(fromDefault+19,b.totalPages);
+        ll.innerHTML=`<div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:10px;">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">المتبقي: ${remaining} صفحة (من ${fromDefault} إلى ${b.totalPages})</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <input type="number" id="book-read-from" value="${fromDefault}" min="1" max="${b.totalPages}" style="flex:1;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingBookRange('${b.id}')">
+                <span style="color:var(--text-muted);font-size:11px;">إلى</span>
+                <input type="number" id="book-read-to" value="${toDefault}" min="1" max="${b.totalPages}" style="flex:1;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingBookRange('${b.id}')">
+            </div>
+        </div>`;
+        updatePendingBookRange(b.id);
+    } else {
+        selectedModalUnitKind='book';
+        if(lbl){lbl.style.display='block';lbl.innerText='اختر درساً:';}
+        const pending=(b.lessons||[]).filter(l=>!l.completed);
+        if(!pending.length){lp.style.display='none';showToast('لا توجد دروس متبقية');return;}
+        lp.style.display='block';
+        ll.innerHTML=pending.map(l=>{
+            const idx=b.lessons.indexOf(l)+1;
+            return`<div onclick="selectUnitForTask('${l.id}',this)" style="padding:7px 10px;border-radius:8px;border:1px solid #262636;margin-bottom:5px;cursor:pointer;background:rgba(0,0,0,0.2);"><span style="font-size:12px;">${b.unitType||'درس'} ${idx}: ${l.name}</span></div>`;
+        }).join('');
+    }
 }
-function backToBooksList(){selectedModalParentId=null;selectedModalUnitId=null;document.getElementById('modal-lessons-panel').style.display='none';renderModalBooksPool();}
+function updatePendingBookRange(bookId){
+    const from=parseInt(document.getElementById('book-read-from').value)||1;
+    const to=parseInt(document.getElementById('book-read-to').value)||from;
+    pendingBookReadRange={from,to:Math.max(from,to)};
+    selectedModalUnitId='reading-'+bookId; // قيمة رمزية لتفعيل زر الحفظ
+}
+function backToBooksList(){selectedModalParentId=null;selectedModalUnitId=null;selectedModalUnitKind=null;pendingBookReadRange=null;document.getElementById('modal-lessons-panel').style.display='none';renderModalBooksPool();}
 
 let pendingWorshipReadRange=null,pendingWorshipSimpleCount=null;
 
@@ -2165,7 +2554,7 @@ function renderModalWorshipPool(){
     const c=document.getElementById('modal-worship-injection-pool');if(!c)return;
     if(!worshipDatabase.length){c.innerHTML='<div style="color:var(--text-muted);font-size:11px;">لا توجد عبادات. أضفها من صفحة المكتبة.</div>';return;}
     c.innerHTML=worshipDatabase.map(w=>{
-        const icon=w.type==='reading'?'📖':w.type==='memorize'?'🧠':'🤲';
+        const icon=w.type==='reading'?'<i class="fa-solid fa-book-open"></i>':w.type==='memorize'?'<i class="fa-solid fa-brain"></i>':'<i class="fa-solid fa-hands-praying"></i>';
         return`<div class="subject-badge-card clickable" style="border-color:${w.color};" onclick="selectWorshipForTask('${w.id}')">${icon} ${w.name}</div>`;
     }).join('');
 }
@@ -2330,7 +2719,7 @@ function cancelStationLongPress(){clearTimeout(stationLongPressTimer);}
 function submitAddNewTask(){
     let title=document.getElementById('input-modal-task-title').value.trim();
     const station=document.getElementById('input-modal-station').value;
-    let linkedUnitId=null,expectedSeconds=0,subjectColor=null,subjectId=null,unitKind=null,worshipId=null,fromPage=null,toPage=null;
+    let linkedUnitId=null,expectedSeconds=0,subjectColor=null,subjectId=null,unitKind=null,worshipId=null,bookId=null,fromPage=null,toPage=null;
 
     if(selectedModalParentId&&selectedModalUnitKind){
         if(selectedModalUnitKind==='subject'){
@@ -2365,6 +2754,23 @@ function submitAddNewTask(){
                 if(!title)title=`${b.name} — ${b.unitType||'درس'} ${idx+1}: ${l.name}`;
                 linkedUnitId=l.id;subjectColor=b.color;unitKind='book';
             }
+        } else if(selectedModalUnitKind==='book-memorize'){
+            const b=booksDatabase.find(x=>x.id===selectedModalParentId);
+            const p=b&&b.pages&&b.pages.find(x=>x.id===selectedModalUnitId);
+            if(b&&p){
+                const idx=b.pages.indexOf(p);
+                if(!title)title=`${b.name} — حفظ صفحة ${idx+1}: ${p.name}`;
+                linkedUnitId=p.id;expectedSeconds=p.expectedSeconds||0;subjectColor=b.color;unitKind='book-memorize';
+            }
+        } else if(selectedModalUnitKind==='book-reading'){
+            const b=booksDatabase.find(x=>x.id===selectedModalParentId);
+            if(b&&pendingBookReadRange){
+                if(!title)title=`${b.name} — قراءة من صفحة ${pendingBookReadRange.from} إلى ${pendingBookReadRange.to}`;
+                subjectColor=b.color;unitKind='book-read';bookId=b.id;
+                fromPage=pendingBookReadRange.from;toPage=pendingBookReadRange.to;
+                // تحديث فوري لآخر صفحة أُسندت (لضمان استمرارية الاقتراح الافتراضي عند إضافة مهام قراءة متتالية قبل إنجازها)
+                b.lastAssignedToPage=toPage;saveBooks();
+            }
         } else if(selectedModalUnitKind==='worship-memorize'){
             const w=worshipDatabase.find(x=>x.id===selectedModalParentId);
             const p=w&&w.pages&&w.pages.find(x=>x.id===selectedModalUnitId);
@@ -2397,11 +2803,11 @@ function submitAddNewTask(){
         hierarchicalGoalsDatabase.push({
             id:'weekgoal-'+Date.now(),text:title,
             category:selectedModalCategory,targetContext:pendingWeekDayTarget.week,
-            subjectId,subjectColor,linkedUnitId,unitKind,worshipId,fromPage,toPage,expectedSeconds,
+            subjectId,subjectColor,linkedUnitId,unitKind,worshipId,bookId,fromPage,toPage,expectedSeconds,
             numericVolume:0,originalVolume:0,isCompleted:false
         });
         saveGoals();closeAddTaskModal();
-        pendingWorshipReadRange=null;pendingWorshipSimpleCount=null;pendingWeekDayTarget=null;
+        pendingWorshipReadRange=null;pendingWorshipSimpleCount=null;pendingBookReadRange=null;pendingWeekDayTarget=null;
         showToast("تمت إضافة الهدف للأسبوع","var(--cat-study)");
         renderHierarchicalTopDownSystem();
         return;
@@ -2416,12 +2822,12 @@ function submitAddNewTask(){
         targetDay:pendingWeekDayTarget?pendingWeekDayTarget.day:null,
         subjectId,subjectColor,
         linkedUnitId,progressCounted:false,expectedSeconds,
-        unitKind,worshipId,fromPage,toPage,
+        unitKind,worshipId,bookId,fromPage,toPage,
         stationTimeFixed:null
     };
     storedDailyTasks.push(newTask);
     saveTasks();closeAddTaskModal();
-    pendingWorshipReadRange=null;pendingWorshipSimpleCount=null;
+    pendingWorshipReadRange=null;pendingWorshipSimpleCount=null;pendingBookReadRange=null;
     showToast("تم إدراج المهمة","var(--cat-study)");
     if(pendingWeekDayTarget){
         pendingWeekDayTarget=null;renderHierarchicalTopDownSystem();
@@ -2454,9 +2860,10 @@ function openFocusStudio(taskId,event){
         if(task.unitKind==='series'){openSeriesCompletion(taskId);return;}
         if(task.unitKind==='book'){openBookCompletion(taskId);return;}
         if(task.unitKind==='worship-read'||task.unitKind==='worship-simple'){openWorshipCompletion(taskId);return;}
+        if(task.unitKind==='book-read'){openBookReadCompletion(taskId);return;}
     }
-    // حفظ القرآن: شاشة استوديو مستقلة بثيم العبادات (بومودورو كامل)، بمعزل تام عن استوديو الدراسة
-    if(task.unitKind==='worship-memorize'){openWorshipMemorizeStudio(taskId);return;}
+    // حفظ القرآن/صفحات الحفظ (عبادة أو كتاب): شاشة استوديو مستقلة بثيم العبادات (بومودورو كامل)، بمعزل تام عن استوديو الدراسة
+    if(task.unitKind==='worship-memorize'||task.unitKind==='book-memorize'){openWorshipMemorizeStudio(taskId);return;}
     studioActiveTaskIndex=idx;
     document.getElementById('studio-task-title').innerText=task.title;
     document.getElementById('studio-task-notes').value=task.notes||"";
@@ -3144,7 +3551,7 @@ function dropOnDay(tid,dk){
             parentGoalId:g.id,targetWeek:activePlanWeekContext,targetDay:dk,
             subjectId:g.subjectId||null,subjectColor:g.subjectColor||null,
             linkedUnitId:g.linkedUnitId||null,progressCounted:false,expectedSeconds:g.expectedSeconds||0,
-            unitKind:g.unitKind||null,worshipId:g.worshipId||null,fromPage:g.fromPage||null,toPage:g.toPage||null
+            unitKind:g.unitKind||null,worshipId:g.worshipId||null,bookId:g.bookId||null,fromPage:g.fromPage||null,toPage:g.toPage||null
         });
         hierarchicalGoalsDatabase=hierarchicalGoalsDatabase.filter(x=>x.id!==g.id);
         saveGoals();saveTasks();
@@ -3153,7 +3560,20 @@ function dropOnDay(tid,dk){
         return;
     }
     const t=storedDailyTasks.find(x=>x.id===tid);
-    if(t&&t.targetWeek===activePlanWeekContext){t.targetDay=dk;saveTasks();showToast(`تم نقل المهمة ليوم ${dayNamesArabic[dk]}`);renderHierarchicalTopDownSystem();}
+    if(t&&t.targetWeek===activePlanWeekContext){
+        // إزالة أي وجود سابق للمهمة ضمن periodTasksDB (أي يوم/فترة قديمة) قبل نقلها ليوم جديد كمهمة "غير موزعة"
+        Object.keys(periodTasksDB).forEach(dk2=>{
+            Object.keys(periodTasksDB[dk2]||{}).forEach(sk=>{
+                if(periodTasksDB[dk2][sk]&&periodTasksDB[dk2][sk].includes(tid)){
+                    periodTasksDB[dk2][sk]=periodTasksDB[dk2][sk].filter(id=>id!==tid);
+                }
+            });
+        });
+        savePeriodTasks();
+        t.targetDay=dk;saveTasks();
+        showToast(`تم نقل المهمة ليوم ${dayNamesArabic[dk]}`);
+        renderHierarchicalTopDownSystem();
+    }
 }
 function selectActiveDayFromPlanScreen(dk){
     // التغيير لا يؤثر على اليوم المعروض في صفحة المهام
@@ -3179,6 +3599,7 @@ function returnTaskToWeekPool(tid){
         linkedUnitId:t.linkedUnitId||null,
         unitKind:t.unitKind||null,
         worshipId:t.worshipId||null,
+        bookId:t.bookId||null,
         fromPage:t.fromPage||null,
         toPage:t.toPage||null,
         expectedSeconds:t.expectedSeconds||0
@@ -3232,6 +3653,7 @@ let currentLibTab='subjects';
 let addingUnitForParentId=null,addingUnitType='subject';
 let selectedBookColor='#10ac84',selectedSeriesColor='#e67e22',selectedWorshipColor='#10ac84',selectedNewSeriesColor='#e84393';
 let currentWorshipType='reading';
+let currentBookMode='study';
 let uploadedBookIconData=null;
 
 const libTabsMeta={
@@ -3295,7 +3717,7 @@ function renderLibSubjects(){
                         <button class="lib-unit-btn" onclick="event.stopPropagation();addUnitTaskToDay('${s.id}','${l.id}','subject')">+ مهمة</button>
                     </div>
                 </div>
-                <div class="lib-reorder-handle" data-reorder-unit="${s.id}|${l.id}|subject"><i class="fa-solid fa-grip-lines"></i></div>
+                <div class="lib-reorder-handle" data-reorder-unit="${s.id}|${l.id}|subject"></div>
             </div>`;
         }).join('');
         const subjIconHtml=s.iconImage
@@ -3317,7 +3739,7 @@ function renderLibSubjects(){
                     </div>
                     <button class="lib-expand-btn"><i class="fa-solid fa-chevron-down"></i></button>
                 </div>
-                <div class="lib-reorder-handle" data-reorder-parent="${s.id}|subject"><i class="fa-solid fa-grip-lines"></i></div>
+                <div class="lib-reorder-handle" data-reorder-parent="${s.id}|subject"></div>
             </div>
             <div class="lib-units-panel" id="${panelId}">
                 ${unitsHtml}
@@ -3334,53 +3756,90 @@ function renderLibBooks(){
     const c=document.getElementById('lib-books-list');if(!c)return;
     if(!booksDatabase.length){c.innerHTML=`<div class="empty-zone-hint">لا توجد كتب. اضغط (+) لإضافة كتاب</div>`;return;}
     c.innerHTML=booksDatabase.map(b=>{
-        const lessons=b.lessons||[];
-        const total=lessons.length;
-        const done=lessons.filter(l=>l.completed).length;
-        const pct=total>0?Math.round((done/total)*100):0;
+        const mode=b.mode||'study'; // الكتب القديمة بدون حقل mode تُعامل كوضع "دراسة" تلقائياً
         const panelId=`book-panel-${b.id}`;
-        const iconHtml=b.iconImage
-            ?`<img src="${b.iconImage}" class="lib-custom-icon">`
-            :'';
-        const unitsHtml=lessons.map((l,i)=>{
-            const completed=!!l.completed;
-            const mp=l.masteryPercent||0;
-            const mc=masteryColor(mp);
-            return`<div class="lib-unit-row" data-reorder-container="${b.id}|book">
-                <div class="lib-longpress-zone-edit" data-longpress-unit="${b.id}|${l.id}|book">
-                    <div class="lib-unit-num">${i+1}</div>
-                    <div class="lib-unit-info">
-                        <div class="lib-unit-name">${b.unitType||'درس'} ${i+1}: ${l.name}</div>
-                        <div class="lib-unit-meta">
-                            ${completed?`<span class="lib-mastery-badge" style="background:${mc}22;color:${mc};">${mp}% — ${mp>=100?'مع ملاحظات':'بدون ملاحظات'}</span>`:`<span style="color:var(--text-muted);">لم تُنجز بعد</span>`}
+        const iconHtml=b.iconImage?`<img src="${b.iconImage}" class="lib-custom-icon">`:'';
+        let pct=0,statLine='',unitsHtml='',modeLabel='';
+        if(mode==='reading'){
+            modeLabel='قراءة';
+            const totalPages=b.totalPages||1;
+            const readCount=b.pagesReadCount||0;
+            pct=Math.min(100,Math.round((readCount/totalPages)*100));
+            statLine=`<span>${readCount} / ${totalPages} صفحة</span>`;
+            unitsHtml=`<div style="padding:8px;">
+                <button class="lib-add-unit-btn" onclick="event.stopPropagation();addBookReadingTaskToDay('${b.id}')" style="border-color:rgba(52,152,219,0.3);color:var(--cat-study);"><i class="fa-solid fa-plus"></i> إضافة مهمة قراءة (من صفحة - إلى صفحة)</button>
+            </div>`;
+        } else if(mode==='memorize'){
+            modeLabel='حفظ';
+            const pages=b.pages||[];
+            const total=pages.length;
+            const done=pages.filter(p=>(p.masteryPercent||0)>=100).length;
+            pct=total>0?Math.round((done/total)*100):0;
+            statLine=`<span>${total} صفحة</span><span style="color:var(--status-done);">${done} مكتملة</span>`;
+            unitsHtml=pages.map((p,i)=>{
+                const mp=p.masteryPercent||0;const mc=masteryColor(mp);
+                return`<div class="lib-unit-row" data-reorder-container="${b.id}|book-memorize">
+                    <div class="lib-longpress-zone-edit" data-longpress-unit="${b.id}|${p.id}|book-memorize">
+                        <div class="lib-unit-num">${i+1}</div>
+                        <div class="lib-unit-info">
+                            <div class="lib-unit-name">${p.name}</div>
+                            <div class="lib-unit-meta"><span class="lib-mastery-badge" style="background:${mc}22;color:${mc};">${mp}% إتقان</span></div>
+                        </div>
+                        <div class="lib-unit-actions">
+                            <button class="lib-unit-btn" onclick="event.stopPropagation();addUnitTaskToDay('${b.id}','${p.id}','book-memorize')" style="border-color:rgba(52,152,219,0.3);color:var(--cat-study);background:rgba(52,152,219,0.08);">+ مهمة</button>
                         </div>
                     </div>
-                    <div class="lib-unit-actions">
-                        <button class="lib-unit-btn" onclick="event.stopPropagation();addUnitTaskToDay('${b.id}','${l.id}','book')" style="border-color:rgba(52,152,219,0.3);color:var(--cat-study);background:rgba(52,152,219,0.08);">+ مهمة</button>
+                    <div class="lib-reorder-handle" data-reorder-unit="${b.id}|${p.id}|book-memorize"></div>
+                </div>`;
+            }).join('');
+        } else {
+            modeLabel='دراسة';
+            const lessons=b.lessons||[];
+            const total=lessons.length;
+            const done=lessons.filter(l=>l.completed).length;
+            pct=total>0?Math.round((done/total)*100):0;
+            statLine=`<span>${total} ${b.unitType||'درس'}</span><span style="color:var(--status-done);">${done} مكتمل</span>`;
+            unitsHtml=lessons.map((l,i)=>{
+                const completed=!!l.completed;
+                const mp=l.masteryPercent||0;
+                const mc=masteryColor(mp);
+                return`<div class="lib-unit-row" data-reorder-container="${b.id}|book">
+                    <div class="lib-longpress-zone-edit" data-longpress-unit="${b.id}|${l.id}|book">
+                        <div class="lib-unit-num">${i+1}</div>
+                        <div class="lib-unit-info">
+                            <div class="lib-unit-name">${b.unitType||'درس'} ${i+1}: ${l.name}</div>
+                            <div class="lib-unit-meta">
+                                ${completed?`<span class="lib-mastery-badge" style="background:${mc}22;color:${mc};">${mp}% — ${mp>=100?'مع ملاحظات':'بدون ملاحظات'}</span>`:`<span style="color:var(--text-muted);">لم تُنجز بعد</span>`}
+                            </div>
+                        </div>
+                        <div class="lib-unit-actions">
+                            <button class="lib-unit-btn" onclick="event.stopPropagation();addUnitTaskToDay('${b.id}','${l.id}','book')" style="border-color:rgba(52,152,219,0.3);color:var(--cat-study);background:rgba(52,152,219,0.08);">+ مهمة</button>
+                        </div>
                     </div>
-                </div>
-                <div class="lib-reorder-handle" data-reorder-unit="${b.id}|${l.id}|book"><i class="fa-solid fa-grip-lines"></i></div>
-            </div>`;
-        }).join('');
+                    <div class="lib-reorder-handle" data-reorder-unit="${b.id}|${l.id}|book"></div>
+                </div>`;
+            }).join('');
+        }
+        const footerBtns=mode==='study'?`
+                <button class="lib-add-unit-btn" onclick="openAddUnitModal('${b.id}','book')" style="border-color:rgba(52,152,219,0.3);color:var(--cat-study);"><i class="fa-solid fa-plus"></i> إضافة ${b.unitType||'درس'}</button>
+                <button class="lib-add-unit-btn" onclick="openBulkAddUnitsModal('${b.id}','book')" style="border-color:rgba(52,152,219,0.3);color:var(--cat-study);"><i class="fa-solid fa-layer-group"></i> إضافة ${b.unitType||'درس'} بالجملة</button>`:'';
         return`<div class="lib-card" data-reorder-container="book">
             <div class="lib-card-header">
                 <div class="lib-longpress-zone-edit" data-longpress-parent="${b.id}|book" onclick="toggleLibPanel('${panelId}')">
+                    <div class="lib-card-color-bar" style="background:${b.color};"></div>
                     ${iconHtml}
                     <div class="lib-card-info">
-                        <div class="lib-card-name">${b.name}</div>
-                        <div class="lib-card-stats">
-                            <span>${total} ${b.unitType||'درس'}</span>
-                            <span style="color:var(--status-done);">${done} مكتمل</span>
-                        </div>
+                        <div class="lib-card-name">${b.name} <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">(${modeLabel})</span></div>
+                        <div class="lib-card-stats">${statLine}</div>
                         <div class="lib-progress-bar-bg"><div class="lib-progress-bar-fill" style="width:${pct}%;background:${b.color};"></div></div>
                     </div>
                     <button class="lib-expand-btn"><i class="fa-solid fa-chevron-down"></i></button>
                 </div>
-                <div class="lib-reorder-handle" data-reorder-parent="${b.id}|book"><i class="fa-solid fa-grip-lines"></i></div>
+                <div class="lib-reorder-handle" data-reorder-parent="${b.id}|book"></div>
             </div>
             <div class="lib-units-panel" id="${panelId}">
                 ${unitsHtml}
-                <button class="lib-add-unit-btn" onclick="openAddUnitModal('${b.id}','book')" style="border-color:rgba(52,152,219,0.3);color:var(--cat-study);"><i class="fa-solid fa-plus"></i> إضافة ${b.unitType||'درس'}</button>
+                ${footerBtns}
             </div>
         </div>`;
     }).join('');
@@ -3415,7 +3874,7 @@ function renderLibSeries(){
                         <button class="lib-unit-btn" onclick="event.stopPropagation();addUnitTaskToDay('${s.id}','${e.id}','series')" style="border-color:rgba(160,106,220,0.3);color:var(--cat-series);background:rgba(160,106,220,0.08);">+ مهمة</button>
                     </div>
                 </div>
-                <div class="lib-reorder-handle" data-reorder-unit="${s.id}|${e.id}|series"><i class="fa-solid fa-grip-lines"></i></div>
+                <div class="lib-reorder-handle" data-reorder-unit="${s.id}|${e.id}|series"></div>
             </div>`;
         }).join('');
         const seriesIconHtml=s.iconImage
@@ -3436,11 +3895,11 @@ function renderLibSeries(){
                     </div>
                     <button class="lib-expand-btn"><i class="fa-solid fa-chevron-down"></i></button>
                 </div>
-                <div class="lib-reorder-handle" data-reorder-parent="${s.id}|series"><i class="fa-solid fa-grip-lines"></i></div>
+                <div class="lib-reorder-handle" data-reorder-parent="${s.id}|series"></div>
             </div>
             <div class="lib-units-panel" id="${panelId}">
                 ${unitsHtml}
-                <button class="lib-add-unit-btn" onclick="openAddSeriesEpisodesModal('${s.id}')" style="border-color:rgba(160,106,220,0.3);color:var(--cat-series);"><i class="fa-solid fa-plus"></i> إضافة ${s.unitType||'حلقة'}ات دفعة واحدة</button>
+                <button class="lib-add-unit-btn" onclick="openBulkAddUnitsModal('${s.id}','series')" style="border-color:rgba(160,106,220,0.3);color:var(--cat-series);"><i class="fa-solid fa-plus"></i> إضافة ${s.unitType||'حلقة'}ات دفعة واحدة</button>
             </div>
         </div>`;
     }).join('');
@@ -3475,7 +3934,7 @@ function renderLibNewSeries(){
                         <button class="lib-unit-btn" onclick="event.stopPropagation();addUnitTaskToDay('${s.id}','${e.id}','newseries')" style="border-color:rgba(232,67,147,0.3);color:var(--cat-newseries);background:rgba(232,67,147,0.08);">+ مهمة</button>
                     </div>
                 </div>
-                <div class="lib-reorder-handle" data-reorder-unit="${s.id}|${e.id}|newseries"><i class="fa-solid fa-grip-lines"></i></div>
+                <div class="lib-reorder-handle" data-reorder-unit="${s.id}|${e.id}|newseries"></div>
             </div>`;
         }).join('');
         const newSeriesIconHtml=s.iconImage
@@ -3496,11 +3955,11 @@ function renderLibNewSeries(){
                     </div>
                     <button class="lib-expand-btn"><i class="fa-solid fa-chevron-down"></i></button>
                 </div>
-                <div class="lib-reorder-handle" data-reorder-parent="${s.id}|newseries"><i class="fa-solid fa-grip-lines"></i></div>
+                <div class="lib-reorder-handle" data-reorder-parent="${s.id}|newseries"></div>
             </div>
             <div class="lib-units-panel" id="${panelId}">
                 ${unitsHtml}
-                <button class="lib-add-unit-btn" onclick="openAddNewSeriesEpisodesModal('${s.id}')" style="border-color:rgba(232,67,147,0.3);color:var(--cat-newseries);"><i class="fa-solid fa-plus"></i> إضافة ${s.unitType||'حلقة'}ات دفعة واحدة</button>
+                <button class="lib-add-unit-btn" onclick="openBulkAddUnitsModal('${s.id}','newseries')" style="border-color:rgba(232,67,147,0.3);color:var(--cat-newseries);"><i class="fa-solid fa-plus"></i> إضافة ${s.unitType||'حلقة'}ات دفعة واحدة</button>
             </div>
         </div>`;
     }).join('');
@@ -3525,7 +3984,7 @@ function renderLibWorship(){
                 <button class="lib-add-unit-btn" style="border-color:rgba(16,172,132,0.3);color:var(--cat-god);" onclick="addWorshipReadingTaskToDay('${w.id}')"><i class="fa-solid fa-plus"></i> إضافة مهمة قراءة (من صفحة - إلى صفحة)</button>
             </div>`;
         } else if(w.type==='memorize'){
-            typeLabel='حفظ';iconClass='fa-brain';
+            typeLabel='';iconClass='fa-brain';
             const pages=w.pages||[];
             const total=pages.length;
             const done=pages.filter(p=>p.masteryPercent>=100).length;
@@ -3545,11 +4004,11 @@ function renderLibWorship(){
                             <button class="lib-unit-btn" onclick="event.stopPropagation();addUnitTaskToDay('${w.id}','${p.id}','worship-memorize')" style="border-color:rgba(16,172,132,0.3);color:var(--cat-god);background:rgba(16,172,132,0.08);">+ مهمة</button>
                         </div>
                     </div>
-                    <div class="lib-reorder-handle" data-reorder-unit="${w.id}|${p.id}|worship-memorize"><i class="fa-solid fa-grip-lines"></i></div>
+                    <div class="lib-reorder-handle" data-reorder-unit="${w.id}|${p.id}|worship-memorize"></div>
                 </div>`;
             }).join('');
         } else {
-            typeLabel='أذكار/عدّاد';iconClass='fa-hand-holding-heart';
+            typeLabel='';iconClass='fa-hand-holding-heart';
             statLine=w.targetCount?`<span>الهدف اليومي: ${w.targetCount}</span>`:`<span style="color:var(--text-muted);">بدون عدد محدد</span>`;
             pct=100; // لا يوجد تقدم تراكمي لهذا النوع
             unitsHtml=`<div style="padding:8px;">
@@ -3559,18 +4018,20 @@ function renderLibWorship(){
         const iconHtml=w.iconImage
             ?`<img src="${w.iconImage}" class="lib-custom-icon">`
             :'';
+        const khatmaBadge=(w.khatmaCount||0)>0?`<span style="font-size:10px;background:${w.color}22;color:${w.color};padding:2px 8px;border-radius:20px;font-weight:bold;margin-right:4px;">ختمة ${w.khatmaCount}</span>`:'';
         return`<div class="lib-card" data-reorder-container="worship">
             <div class="lib-card-header">
                 <div class="lib-longpress-zone-edit" data-longpress-parent="${w.id}|worship" onclick="toggleLibPanel('${panelId}')">
+                    <div class="lib-card-color-bar" style="background:${w.color};"></div>
                     ${iconHtml}
                     <div class="lib-card-info">
-                        <div class="lib-card-name">${w.name} <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">(${typeLabel})</span></div>
+                        <div class="lib-card-name">${w.name} ${khatmaBadge}${typeLabel?`<span style="font-size:10px;color:var(--text-muted);font-weight:normal;">(${typeLabel})</span>`:''}</div>
                         <div class="lib-card-stats">${statLine}</div>
                         ${w.type!=='simple'?`<div class="lib-progress-bar-bg"><div class="lib-progress-bar-fill" style="width:${pct}%;background:${w.color};"></div></div>`:''}
                     </div>
                     <button class="lib-expand-btn"><i class="fa-solid fa-chevron-down"></i></button>
                 </div>
-                <div class="lib-reorder-handle" data-reorder-parent="${w.id}|worship"><i class="fa-solid fa-grip-lines"></i></div>
+                <div class="lib-reorder-handle" data-reorder-parent="${w.id}|worship"></div>
             </div>
             <div class="lib-units-panel" id="${panelId}">${unitsHtml}</div>
         </div>`;
@@ -3596,11 +4057,11 @@ function openAddUnitModal(parentId,type){
     const label=isWorshipMem?'صفحة حفظ':isBook?(parent?parent.unitType:'درس'):'محاضرة';
     document.getElementById('add-unit-modal-title').innerHTML=`<i class="fa-solid fa-plus"></i> إضافة ${label}`;
     document.getElementById('add-unit-name').value='';
-    // إخفاء حقول الوقت للكتب والسلاسل (نظام ثنائي بدون بومودورو)
+    // حقل الوقت المتوقع يظهر الآن لكل الأنواع (مواد الفصل / حفظ القرآن / دروس الكتب دراسة)
     const timeRow=document.getElementById('add-unit-time-row');
     const timeLabel=document.getElementById('add-unit-time-label');
-    if(timeRow)timeRow.style.display=isBook?'none':'flex';
-    if(timeLabel)timeLabel.style.display=isBook?'none':'block';
+    if(timeRow)timeRow.style.display='flex';
+    if(timeLabel)timeLabel.style.display='block';
     document.getElementById('add-unit-hours').value='1';
     document.getElementById('add-unit-minutes').value='30';
     document.getElementById('add-unit-modal').style.display='flex';
@@ -3610,10 +4071,10 @@ function closeAddUnitModal(){document.getElementById('add-unit-modal').style.dis
 function submitAddUnit(){
     const name=document.getElementById('add-unit-name').value.trim();
     if(!name){showToast('الرجاء كتابة الاسم');return;}
+    const h=parseInt(document.getElementById('add-unit-hours').value)||0;
+    const m=parseInt(document.getElementById('add-unit-minutes').value)||0;
+    const expectedSeconds=(h*3600)+(m*60);
     if(addingUnitType==='subject'||addingUnitType==='worship-memorize'){
-        const h=parseInt(document.getElementById('add-unit-hours').value)||0;
-        const m=parseInt(document.getElementById('add-unit-minutes').value)||0;
-        const expectedSeconds=addingUnitType==='subject'?(h*3600)+(m*60):0;
         const unit={id:'unit-'+Date.now(),name,expectedSeconds,timesCompleted:0,totalSecondsSpent:0,masteryPercent:0};
         if(addingUnitType==='subject'){
             const s=subjectsDatabase.find(x=>x.id===addingUnitForParentId);
@@ -3623,7 +4084,7 @@ function submitAddUnit(){
             if(w){if(!w.pages)w.pages=[];w.pages.push(unit);saveWorship();}
         }
     } else if(addingUnitType==='book'){
-        const unit={id:'unit-'+Date.now(),name,masteryPercent:0,completed:false};
+        const unit={id:'unit-'+Date.now(),name,expectedSeconds,masteryPercent:0,completed:false};
         const b=booksDatabase.find(x=>x.id===addingUnitForParentId);
         if(b){b.lessons.push(unit);saveBooks();}
     }
@@ -3634,12 +4095,36 @@ function submitAddUnit(){
 }
 
 // ---- إضافة كتاب ----
+function renderExistingBooksPreview(){
+    const c=document.getElementById('add-book-existing-preview');if(!c)return;
+    if(!booksDatabase.length){c.innerHTML='<span style="font-size:10px;color:var(--text-muted);">لا توجد كتب بعد</span>';return;}
+    c.innerHTML=booksDatabase.map(b=>{
+        const m=b.mode||'study';
+        const label=m==='reading'?'قراءة':m==='memorize'?'حفظ':'دراسة';
+        return`<div class="subject-badge-card" style="border-color:${b.color};font-size:10px;padding:4px 8px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${b.color};margin-left:4px;"></span>${b.name} <span style="color:var(--text-muted);">(${label})</span></div>`;
+    }).join('');
+}
+// ---- اختيار وضع الكتاب (دراسة/قراءة/حفظ) — يتحكم بالحقول الظاهرة بنافذة الإضافة ----
+function selectBookMode(mode){
+    currentBookMode=mode;
+    document.getElementById('book-mode-study').classList.toggle('selected',mode==='study');
+    document.getElementById('book-mode-reading').classList.toggle('selected',mode==='reading');
+    document.getElementById('book-mode-memorize').classList.toggle('selected',mode==='memorize');
+    document.getElementById('book-unittype-field').style.display=(mode==='study')?'block':'none';
+    document.getElementById('book-pages-field').style.display=(mode==='study')?'none':'block';
+    const pagesLabel=document.getElementById('book-pages-label');
+    if(pagesLabel)pagesLabel.innerText=(mode==='memorize')?'عدد الصفحات المراد حفظها (تُنشأ تلقائياً):':'إجمالي عدد الصفحات:';
+}
 function openAddBookModal(){
     document.getElementById('add-book-name').value='';
+    document.getElementById('add-book-pages').value='200';
+    currentBookMode='study';
+    selectBookMode('study');
     uploadedBookIconData=null;
     document.getElementById('add-book-icon-preview').style.display='none';
     document.getElementById('add-book-icon-input').value='';
     refreshBookColorSwatches();
+    renderExistingBooksPreview();
     document.getElementById('add-book-modal').style.display='flex';
     setTimeout(()=>document.getElementById('add-book-name').focus(),100);
 }
@@ -3649,17 +4134,31 @@ function handleBookIconUpload(event){
     const f=event.target.files[0];if(!f)return;
     const r=new FileReader();
     r.onload=e=>{
-        uploadedBookIconData=e.target.result;
-        const prev=document.getElementById('add-book-icon-preview');
-        prev.src=uploadedBookIconData;prev.style.display='block';
+        openImageCropper(e.target.result,croppedDataUrl=>{
+            uploadedBookIconData=croppedDataUrl;
+            const prev=document.getElementById('add-book-icon-preview');
+            prev.src=uploadedBookIconData;prev.style.display='block';
+        });
     };
     r.readAsDataURL(f);
 }
 function submitAddBook(){
     const name=document.getElementById('add-book-name').value.trim();
     if(!name){showToast('الرجاء كتابة اسم الكتاب');return;}
-    const unitType=document.getElementById('add-book-unit-type').value;
-    booksDatabase.push({id:'book-'+Date.now(),name,unitType,color:selectedBookColor,iconImage:uploadedBookIconData,lessons:[]});
+    if(currentBookMode==='reading'){
+        const pages=Math.max(1,parseInt(document.getElementById('add-book-pages').value)||1);
+        booksDatabase.push({id:'book-'+Date.now(),name,mode:'reading',color:selectedBookColor,iconImage:uploadedBookIconData,totalPages:pages,pagesReadCount:0,lastAssignedToPage:0});
+    } else if(currentBookMode==='memorize'){
+        const pageCount=Math.max(1,parseInt(document.getElementById('add-book-pages').value)||1);
+        const pages=[];
+        for(let i=1;i<=pageCount;i++){
+            pages.push({id:'bpage-'+Date.now()+'-'+i,name:`صفحة ${i}`,timesCompleted:0,totalSecondsSpent:0,expectedSeconds:0,masteryPercent:0});
+        }
+        booksDatabase.push({id:'book-'+Date.now(),name,mode:'memorize',color:selectedBookColor,iconImage:uploadedBookIconData,totalPages:pageCount,pages});
+    } else {
+        const unitType=document.getElementById('add-book-unit-type').value;
+        booksDatabase.push({id:'book-'+Date.now(),name,mode:'study',unitType,color:selectedBookColor,iconImage:uploadedBookIconData,lessons:[]});
+    }
     saveBooks();closeAddBookModal();renderLibrary();showToast('تمت إضافة الكتاب 📖');
 }
 
@@ -3681,9 +4180,11 @@ function handleSeriesIconUpload(event){
     const f=event.target.files[0];if(!f)return;
     const r=new FileReader();
     r.onload=e=>{
-        pendingSeriesIcon=e.target.result;
-        const prev=document.getElementById('add-series-icon-preview');
-        prev.src=pendingSeriesIcon;prev.style.display='block';
+        openImageCropper(e.target.result,croppedDataUrl=>{
+            pendingSeriesIcon=croppedDataUrl;
+            const prev=document.getElementById('add-series-icon-preview');
+            prev.src=pendingSeriesIcon;prev.style.display='block';
+        });
     };
     r.readAsDataURL(f);
 }
@@ -3699,18 +4200,7 @@ function submitAddSeries(){
     seriesDatabase.push({id:'series-'+Date.now(),name,unitType,color:selectedSeriesColor,iconImage:pendingSeriesIcon,episodes});
     saveSeries();closeAddSeriesModal();renderLibrary();showToast(`تم إنشاء السلسلة بـ ${count} ${unitType} 🎬`,'var(--cat-series)');
 }
-// إضافة حلقات دفعة إضافية لسلسلة موجودة
-function openAddSeriesEpisodesModal(seriesId){
-    const n=prompt('كم حلقة إضافية تريد؟','10');
-    const count=parseInt(n);
-    if(!count||count<1)return;
-    const s=seriesDatabase.find(x=>x.id===seriesId);if(!s)return;
-    const startNum=(s.episodes||[]).length+1;
-    for(let i=0;i<count;i++){
-        s.episodes.push({id:'ep-'+Date.now()+'-'+i,name:`${s.unitType||'حلقة'} ${startNum+i}`,masteryPercent:0,completed:false});
-    }
-    saveSeries();renderLibrary();showToast(`تمت إضافة ${count} حلقة جديدة`,'var(--cat-series)');
-}
+// إضافة حلقات دفعة إضافية لسلسلة موجودة — تصير عبر نافذة bulk-add-units-modal الموحّدة (انظر أسفل الملف)
 
 // ---- إضافة سلسلة (تبويب "السلاسل" الترفيهي) مع توليد حلقات بالجملة — مستقلة تماماً عن دوال فقه النفس أعلاه ----
 function openAddNewSeriesModal(){
@@ -3730,9 +4220,11 @@ function handleNewSeriesIconUpload(event){
     const f=event.target.files[0];if(!f)return;
     const r=new FileReader();
     r.onload=e=>{
-        pendingNewSeriesIcon=e.target.result;
-        const prev=document.getElementById('add-newseries-icon-preview');
-        prev.src=pendingNewSeriesIcon;prev.style.display='block';
+        openImageCropper(e.target.result,croppedDataUrl=>{
+            pendingNewSeriesIcon=croppedDataUrl;
+            const prev=document.getElementById('add-newseries-icon-preview');
+            prev.src=pendingNewSeriesIcon;prev.style.display='block';
+        });
     };
     r.readAsDataURL(f);
 }
@@ -3748,26 +4240,74 @@ function submitAddNewSeries(){
     newSeriesDatabase.push({id:'newseries-'+Date.now(),name,unitType,color:selectedNewSeriesColor,iconImage:pendingNewSeriesIcon,episodes});
     saveNewSeries();closeAddNewSeriesModal();renderLibrary();showToast(`تم إنشاء السلسلة بـ ${count} ${unitType} 🎬`,'var(--cat-newseries)');
 }
-// إضافة حلقات دفعة إضافية لسلسلة موجودة (تبويب السلاسل الترفيهي)
-function openAddNewSeriesEpisodesModal(seriesId){
-    const n=prompt('كم حلقة إضافية تريد؟','10');
-    const count=parseInt(n);
-    if(!count||count<1)return;
-    const s=newSeriesDatabase.find(x=>x.id===seriesId);if(!s)return;
-    const startNum=(s.episodes||[]).length+1;
-    for(let i=0;i<count;i++){
-        s.episodes.push({id:'newep-'+Date.now()+'-'+i,name:`${s.unitType||'حلقة'} ${startNum+i}`,masteryPercent:0,completed:false});
-    }
-    saveNewSeries();renderLibrary();showToast(`تمت إضافة ${count} حلقة جديدة`,'var(--cat-newseries)');
+// إضافة حلقات دفعة إضافية (تبويب السلاسل الترفيهي) — تصير عبر نافذة bulk-add-units-modal الموحّدة (انظر أسفل الملف)
+
+// ================================================================
+// نافذة إضافة دفعة وحدات موحّدة (دروس الكتب / حلقات فقه النفس / حلقات السلاسل)
+// ================================================================
+let bulkAddUnitsTarget={parentId:null,type:null};
+function openBulkAddUnitsModal(parentId,type){
+    bulkAddUnitsTarget={parentId,type};
+    let parent,defaultPrefix='وحدة',label='وحدات';
+    if(type==='book'){parent=booksDatabase.find(x=>x.id===parentId);defaultPrefix=(parent&&parent.unitType)||'درس';label=`${defaultPrefix}اً`;}
+    else if(type==='series'){parent=seriesDatabase.find(x=>x.id===parentId);defaultPrefix=(parent&&parent.unitType)||'حلقة';label=`${defaultPrefix}ات`;}
+    else if(type==='newseries'){parent=newSeriesDatabase.find(x=>x.id===parentId);defaultPrefix=(parent&&parent.unitType)||'حلقة';label=`${defaultPrefix}ات`;}
+    document.getElementById('bulk-add-units-title').innerHTML=`<i class="fa-solid fa-layer-group"></i> إضافة ${label} بالجملة`;
+    document.getElementById('bulk-add-units-count').value='10';
+    document.getElementById('bulk-add-units-prefix').value=defaultPrefix;
+    // حقل الوقت المتوقع لكل وحدة: يظهر فقط لحلقات فقه النفس والسلاسل الترفيهية، وليس للكتب
+    const showTime=(type==='series'||type==='newseries');
+    const timeRow=document.getElementById('bulk-add-units-time-row');
+    const timeLabel=document.getElementById('bulk-add-units-time-label');
+    if(timeRow)timeRow.style.display=showTime?'flex':'none';
+    if(timeLabel)timeLabel.style.display=showTime?'block':'none';
+    document.getElementById('bulk-add-units-hours').value='0';
+    document.getElementById('bulk-add-units-minutes').value='30';
+    document.getElementById('bulk-add-units-modal').style.display='flex';
+    setTimeout(()=>document.getElementById('bulk-add-units-count').focus(),100);
+}
+function closeBulkAddUnitsModal(){document.getElementById('bulk-add-units-modal').style.display='none';bulkAddUnitsTarget={parentId:null,type:null};}
+function submitBulkAddUnits(){
+    const {parentId,type}=bulkAddUnitsTarget;
+    if(!parentId||!type)return;
+    const count=Math.max(1,Math.min(500,parseInt(document.getElementById('bulk-add-units-count').value)||1));
+    const prefix=document.getElementById('bulk-add-units-prefix').value.trim()||'وحدة';
+    const bh=parseInt(document.getElementById('bulk-add-units-hours').value)||0;
+    const bm=parseInt(document.getElementById('bulk-add-units-minutes').value)||0;
+    const bulkExpectedSeconds=(bh*3600)+(bm*60);
+    let toastColor='var(--accent-color)';
+    if(type==='book'){
+        const b=booksDatabase.find(x=>x.id===parentId);if(!b)return;
+        if(!b.lessons)b.lessons=[];
+        const startNum=b.lessons.length+1;
+        for(let i=0;i<count;i++){b.lessons.push({id:'unit-'+Date.now()+'-'+i,name:`${prefix} ${startNum+i}`,masteryPercent:0,completed:false});}
+        saveBooks();toastColor='var(--cat-book)';
+    } else if(type==='series'){
+        const s=seriesDatabase.find(x=>x.id===parentId);if(!s)return;
+        if(!s.episodes)s.episodes=[];
+        const startNum=s.episodes.length+1;
+        for(let i=0;i<count;i++){s.episodes.push({id:'ep-'+Date.now()+'-'+i,name:`${prefix} ${startNum+i}`,masteryPercent:0,completed:false,expectedSeconds:bulkExpectedSeconds});}
+        saveSeries();toastColor='var(--cat-series)';
+    } else if(type==='newseries'){
+        const s=newSeriesDatabase.find(x=>x.id===parentId);if(!s)return;
+        if(!s.episodes)s.episodes=[];
+        const startNum=s.episodes.length+1;
+        for(let i=0;i<count;i++){s.episodes.push({id:'newep-'+Date.now()+'-'+i,name:`${prefix} ${startNum+i}`,masteryPercent:0,completed:false,expectedSeconds:bulkExpectedSeconds});}
+        saveNewSeries();toastColor='var(--cat-newseries)';
+    } else return;
+    const parentIdSaved=parentId,typeSaved=type;
+    closeBulkAddUnitsModal();renderLibrary();showToast(`تمت إضافة ${count} ${prefix} 📦`,toastColor);
+    const prefixMap={book:'book-panel-',series:'series-panel-',newseries:'newseries-panel-'};
+    const panelId=(prefixMap[typeSaved]||'')+parentIdSaved;
+    setTimeout(()=>{const p=document.getElementById(panelId);if(p&&!p.classList.contains('open'))toggleLibPanel(panelId);},100);
 }
 
 // ---- إضافة عبادة (قراءة / حفظ) ----
 function selectWorshipType(type){
     currentWorshipType=type;
-    document.getElementById('worship-type-reading').classList.toggle('selected',type==='reading');
     document.getElementById('worship-type-memorize').classList.toggle('selected',type==='memorize');
     document.getElementById('worship-type-simple').classList.toggle('selected',type==='simple');
-    document.getElementById('worship-pages-field').style.display=(type==='reading'||type==='memorize')?'block':'none';
+    document.getElementById('worship-pages-field').style.display=(type==='memorize')?'block':'none';
     document.getElementById('worship-target-field').style.display=(type==='simple')?'block':'none';
     const pagesLabel=document.querySelector('#worship-pages-field label');
     if(pagesLabel)pagesLabel.innerText=type==='memorize'?'عدد الصفحات المراد حفظها (تُنشأ تلقائياً):':'عدد الصفحات:';
@@ -3775,9 +4315,11 @@ function selectWorshipType(type){
 function openAddWorshipModal(){
     document.getElementById('add-worship-name').value='';
     document.getElementById('add-worship-pages').value='20';
+    document.getElementById('add-worship-page-hours').value='0';
+    document.getElementById('add-worship-page-minutes').value='15';
     document.getElementById('add-worship-target').value='';
-    currentWorshipType='reading';
-    selectWorshipType('reading');
+    currentWorshipType='memorize';
+    selectWorshipType('memorize');
     refreshWorshipColorSwatches();
     pendingWorshipIcon=null;
     document.getElementById('add-worship-icon-preview').style.display='none';
@@ -3792,9 +4334,11 @@ function handleWorshipIconUpload(event){
     const f=event.target.files[0];if(!f)return;
     const r=new FileReader();
     r.onload=e=>{
-        pendingWorshipIcon=e.target.result;
-        const prev=document.getElementById('add-worship-icon-preview');
-        prev.src=pendingWorshipIcon;prev.style.display='block';
+        openImageCropper(e.target.result,croppedDataUrl=>{
+            pendingWorshipIcon=croppedDataUrl;
+            const prev=document.getElementById('add-worship-icon-preview');
+            prev.src=pendingWorshipIcon;prev.style.display='block';
+        });
     };
     r.readAsDataURL(f);
 }
@@ -3806,9 +4350,12 @@ function submitAddWorship(){
         worshipDatabase.push({id:'worship-'+Date.now(),name,type:'reading',color:selectedWorshipColor,iconImage:pendingWorshipIcon,totalPages:pages,pagesReadCount:0});
     } else if(currentWorshipType==='memorize'){
         const pageCount=Math.max(1,parseInt(document.getElementById('add-worship-pages').value)||1);
+        const ph=parseInt(document.getElementById('add-worship-page-hours').value)||0;
+        const pm=parseInt(document.getElementById('add-worship-page-minutes').value)||0;
+        const pageExpectedSeconds=(ph*3600)+(pm*60);
         const pages=[];
         for(let i=1;i<=pageCount;i++){
-            pages.push({id:'wpage-'+Date.now()+'-'+i,name:`صفحة ${i}`,timesCompleted:0,totalSecondsSpent:0,expectedSeconds:0,masteryPercent:0});
+            pages.push({id:'wpage-'+Date.now()+'-'+i,name:`صفحة ${i}`,timesCompleted:0,totalSecondsSpent:0,expectedSeconds:pageExpectedSeconds,masteryPercent:0});
         }
         worshipDatabase.push({id:'worship-'+Date.now(),name,type:'memorize',color:selectedWorshipColor,iconImage:pendingWorshipIcon,pages});
     } else {
@@ -3823,7 +4370,7 @@ function addWorshipReadingTaskToDay(worshipId){
     const w=worshipDatabase.find(x=>x.id===worshipId);if(!w)return;
     const remaining=Math.max(0,(w.totalPages||0)-(w.pagesReadCount||0));
     if(remaining<=0){showToast('تم الانتهاء من كل الصفحات! 🎉','var(--status-done)');return;}
-    const fromDefault=(w.pagesReadCount||0)+1;
+    const fromDefault=(w.lastAssignedToPage||w.pagesReadCount||0)+1;
     const fromStr=prompt(`من صفحة (المتبقي ${remaining} صفحة):`,fromDefault);
     if(!fromStr)return;
     const from=parseInt(fromStr);if(isNaN(from)||from<1)return;
@@ -3840,7 +4387,35 @@ function addWorshipReadingTaskToDay(worshipId){
         linkedUnitId:null,progressCounted:false,
         unitKind:'worship-read',worshipId:w.id,fromPage:from,toPage:to
     });
+    w.lastAssignedToPage=to;saveWorship();
     saveTasks();showToast('تمت الإضافة لقائمة المهام ✅','var(--cat-god)');
+    switchScreen('tasks');
+}
+
+// ---- إضافة مهمة قراءة كتاب (من صفحة - إلى صفحة) — بنفس منطق قراءة العبادات ----
+function addBookReadingTaskToDay(bookId){
+    const b=booksDatabase.find(x=>x.id===bookId);if(!b)return;
+    const remaining=Math.max(0,(b.totalPages||0)-(b.pagesReadCount||0));
+    if(remaining<=0){showToast('تم الانتهاء من كل الصفحات! 🎉','var(--status-done)');return;}
+    const fromDefault=(b.lastAssignedToPage||b.pagesReadCount||0)+1;
+    const fromStr=prompt(`من صفحة (المتبقي ${remaining} صفحة):`,fromDefault);
+    if(!fromStr)return;
+    const from=parseInt(fromStr);if(isNaN(from)||from<1)return;
+    const toStr=prompt('إلى صفحة:',Math.min(from+19,(b.totalPages||from)));
+    if(!toStr)return;
+    const to=parseInt(toStr);if(isNaN(to)||to<from)return;
+    storedDailyTasks.push({
+        id:'task-book-'+Date.now(),
+        title:`${b.name} — قراءة من صفحة ${from} إلى ${to}`,
+        category:'book',status:'wait',notes:'',
+        totalSecondsSpent:0,station:'dhuhr',
+        parentGoalId:null,targetWeek:null,targetDay:null,
+        subjectId:null,subjectColor:b.color,
+        linkedUnitId:null,progressCounted:false,
+        unitKind:'book-read',bookId:b.id,fromPage:from,toPage:to
+    });
+    b.lastAssignedToPage=to;saveBooks();
+    saveTasks();showToast('تمت الإضافة لقائمة المهام ✅','var(--cat-study)');
     switchScreen('tasks');
 }
 
@@ -3853,21 +4428,28 @@ function addUnitTaskToDay(parentId,unitId,type){
         if(!parent||!unit){showToast('لم يتم العثور على الوحدة');return;}
         const idx=parent.lessons.indexOf(unit)+1;
         title=`${parent.name} — ${parent.unitType||'درس'} ${idx}: ${unit.name}`;
-        category='god';subjectColor=parent.color;unitKind='book';
+        category='book';subjectColor=parent.color;expSec=unit.expectedSeconds||0;unitKind='book';
+    } else if(type==='book-memorize'){
+        parent=booksDatabase.find(x=>x.id===parentId);
+        unit=parent&&parent.pages&&parent.pages.find(l=>l.id===unitId);
+        if(!parent||!unit){showToast('لم يتم العثور على الوحدة');return;}
+        const idx=parent.pages.indexOf(unit)+1;
+        title=`${parent.name} — حفظ صفحة ${idx}: ${unit.name}`;
+        category='book';subjectColor=parent.color;expSec=unit.expectedSeconds||0;unitKind='book-memorize';
     } else if(type==='series'){
         parent=seriesDatabase.find(x=>x.id===parentId);
         unit=parent&&parent.episodes.find(l=>l.id===unitId);
         if(!parent||!unit){showToast('لم يتم العثور على الوحدة');return;}
         const idx=parent.episodes.indexOf(unit)+1;
         title=`${parent.name} — ${parent.unitType||'حلقة'} ${idx}: ${unit.name}`;
-        category='series';subjectColor=parent.color;unitKind='series';
+        category='series';subjectColor=parent.color;expSec=unit.expectedSeconds||0;unitKind='series';
     } else if(type==='newseries'){
         parent=newSeriesDatabase.find(x=>x.id===parentId);
         unit=parent&&parent.episodes.find(l=>l.id===unitId);
         if(!parent||!unit){showToast('لم يتم العثور على الوحدة');return;}
         const idx=parent.episodes.indexOf(unit)+1;
         title=`${parent.name} — ${parent.unitType||'حلقة'} ${idx}: ${unit.name}`;
-        category='newseries';subjectColor=parent.color;unitKind='newseries';
+        category='newseries';subjectColor=parent.color;expSec=unit.expectedSeconds||0;unitKind='newseries';
     } else if(type==='worship-memorize'){
         parent=worshipDatabase.find(x=>x.id===parentId);
         unit=parent&&parent.pages&&parent.pages.find(l=>l.id===unitId);
@@ -3908,28 +4490,43 @@ function addUnitTaskToDay(parentId,unitId,type){
 // ================================================================
 let longpressTarget=null; // {kind:'parent'|'unit', dbType, parentId, unitId}
 function setupLibLongPress(){
+    const MOVE_TOLERANCE=14; // px مسموح بها قبل اعتبار الحركة إلغاءً للضغطة المطولة
     document.querySelectorAll('[data-longpress-parent]').forEach(el=>{
-        let lpt=null,moved=false;
+        let lpt=null,moved=false,sx=0,sy=0;
         const info=el.getAttribute('data-longpress-parent').split('|'); // id|type
-        const start=e=>{moved=false;lpt=setTimeout(()=>{if(!moved)openLibLongpressModal('parent',info[1],info[0],null);},600);};
-        const cancel=()=>{moved=true;clearTimeout(lpt);};
+        const start=e=>{
+            moved=false;
+            const t=e.touches?e.touches[0]:e;sx=t.clientX;sy=t.clientY;
+            lpt=setTimeout(()=>{if(!moved)openLibLongpressModal('parent',info[1],info[0],null);},600);
+        };
+        const move=e=>{
+            const t=e.touches?e.touches[0]:e;
+            if(Math.abs(t.clientX-sx)>MOVE_TOLERANCE||Math.abs(t.clientY-sy)>MOVE_TOLERANCE){moved=true;clearTimeout(lpt);}
+        };
         el.addEventListener('touchstart',start,{passive:true});
-        el.addEventListener('touchmove',cancel,{passive:true});
+        el.addEventListener('touchmove',move,{passive:true});
         el.addEventListener('touchend',()=>clearTimeout(lpt),{passive:true});
         el.addEventListener('mousedown',start);
-        el.addEventListener('mousemove',cancel);
+        el.addEventListener('mousemove',move);
         el.addEventListener('mouseup',()=>clearTimeout(lpt));
     });
     document.querySelectorAll('[data-longpress-unit]').forEach(el=>{
-        let lpt=null,moved=false;
+        let lpt=null,moved=false,sx=0,sy=0;
         const info=el.getAttribute('data-longpress-unit').split('|'); // parentId|unitId|type
-        const start=e=>{moved=false;lpt=setTimeout(()=>{if(!moved)openLibLongpressModal('unit',info[2],info[0],info[1]);},600);};
-        const cancel=()=>{moved=true;clearTimeout(lpt);};
+        const start=e=>{
+            moved=false;
+            const t=e.touches?e.touches[0]:e;sx=t.clientX;sy=t.clientY;
+            lpt=setTimeout(()=>{if(!moved)openLibLongpressModal('unit',info[2],info[0],info[1]);},600);
+        };
+        const move=e=>{
+            const t=e.touches?e.touches[0]:e;
+            if(Math.abs(t.clientX-sx)>MOVE_TOLERANCE||Math.abs(t.clientY-sy)>MOVE_TOLERANCE){moved=true;clearTimeout(lpt);}
+        };
         el.addEventListener('touchstart',start,{passive:true});
-        el.addEventListener('touchmove',cancel,{passive:true});
+        el.addEventListener('touchmove',move,{passive:true});
         el.addEventListener('touchend',()=>clearTimeout(lpt),{passive:true});
         el.addEventListener('mousedown',start);
-        el.addEventListener('mousemove',cancel);
+        el.addEventListener('mousemove',move);
         el.addEventListener('mouseup',()=>clearTimeout(lpt));
     });
 }
@@ -3951,6 +4548,7 @@ function getLibUnitArray(dbType,parentId){
     if(dbType==='series'){const s=seriesDatabase.find(x=>x.id===parentId);return s?s.episodes:null;}
     if(dbType==='newseries'){const s=newSeriesDatabase.find(x=>x.id===parentId);return s?s.episodes:null;}
     if(dbType==='worship-memorize'){const w=worshipDatabase.find(x=>x.id===parentId);return w?w.pages:null;}
+    if(dbType==='book-memorize'){const b=booksDatabase.find(x=>x.id===parentId);return b?b.pages:null;}
     return null;
 }
 function reorderArrayById(arr,id,targetIndex){
@@ -3989,7 +4587,8 @@ function setupLibReorderDrag(){
     };
     const pointFromEvent=e=>e.touches&&e.touches.length?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY};
     const startDrag=(handle,e)=>{
-        e.preventDefault();
+        const startPoint=pointFromEvent(e);
+        let dragActive=false;
         const isParent=handle.hasAttribute('data-reorder-parent');
         const attr=isParent?'data-reorder-parent':'data-reorder-unit';
         const parts=handle.getAttribute(attr).split('|');
@@ -4007,11 +4606,21 @@ function setupLibReorderDrag(){
             siblings=Array.from(document.querySelectorAll(`.lib-unit-row[data-reorder-container="${containerKey}"]`));
         }
         if(!dragEl)return;
-        handle.classList.add('dragging');
-        dragEl.classList.add('reorder-dragging');
         overEl=dragEl;overPos=null;
+        const activateDrag=()=>{
+            if(dragActive)return;
+            dragActive=true;
+            handle.classList.add('dragging');
+            dragEl.classList.add('reorder-dragging');
+        };
         const onMove=me=>{
             const p=pointFromEvent(me);
+            if(!dragActive){
+                const dx=Math.abs(p.x-startPoint.x),dy=Math.abs(p.y-startPoint.y);
+                if(dx>8||dy>8)activateDrag(); // عتبة حركة صغيرة تفرّق بين لمسة عابرة وسحب حقيقي
+                else return;
+            }
+            me.preventDefault&&me.preventDefault();
             const el=document.elementFromPoint(p.x,p.y);
             const row=el&&el.closest(dragKind==='parent'?'.lib-card':'.lib-unit-row');
             if(!row||!siblings.includes(row))return;
@@ -4026,6 +4635,7 @@ function setupLibReorderDrag(){
             document.removeEventListener('mouseup',onEnd);
             document.removeEventListener('touchmove',onMove);
             document.removeEventListener('touchend',onEnd);
+            if(!dragActive){dragEl=null;dragKind=null;dragInfo=null;siblings=[];overEl=null;overPos=null;return;}
             endDrag();
         };
         document.addEventListener('mousemove',onMove);
@@ -4051,13 +4661,14 @@ function getLibEntity(kind,dbType,parentId,unitId){
         if(dbType==='series'){const s=seriesDatabase.find(x=>x.id===parentId);return s&&s.episodes.find(l=>l.id===unitId);}
         if(dbType==='newseries'){const s=newSeriesDatabase.find(x=>x.id===parentId);return s&&s.episodes.find(l=>l.id===unitId);}
         if(dbType==='worship-memorize'){const w=worshipDatabase.find(x=>x.id===parentId);return w&&w.pages&&w.pages.find(l=>l.id===unitId);}
+        if(dbType==='book-memorize'){const b=booksDatabase.find(x=>x.id===parentId);return b&&b.pages&&b.pages.find(l=>l.id===unitId);}
     }
     return null;
 }
 let pendingLongpressIcon=null,longpressIconRemoved=false;
 let longpressMasterySelection=null;
-const LONGPRESS_MASTERY_OPTIONS_TC={ // subject / worship-memorize: مبني على timesCompleted
-    types:['subject','worship-memorize'],
+const LONGPRESS_MASTERY_OPTIONS_TC={ // subject / worship-memorize / book-memorize: مبني على timesCompleted
+    types:['subject','worship-memorize','book-memorize'],
     options:[
         {value:0,label:'لم تُنجز (0%)'},
         {value:1,label:'مرة واحدة (50%)'},
@@ -4111,6 +4722,9 @@ function openLibLongpressModal(kind,dbType,parentId,unitId){
     if(hasColor){
         document.querySelectorAll('#lib-longpress-color-swatches .color-swatch').forEach(s=>{s.classList.toggle('selected',s.getAttribute('data-color')===entity.color);});
     }
+    // مهمة "القرآن الكريم" الأساسية لا يمكن حذفها (التعديل يبقى متاحاً)
+    const deleteBtn=document.getElementById('lib-longpress-delete-btn');
+    if(deleteBtn)deleteBtn.style.display=(entity.isDefaultQuran===true)?'none':'';
     // قسم الأيقونة المخصصة - فقط للعناصر الرئيسية (ليس الوحدات الفرعية)
     document.getElementById('lib-longpress-icon-section').style.display=hasColor?'block':'none';
     const iconPrev=document.getElementById('lib-longpress-icon-preview');
@@ -4120,15 +4734,27 @@ function openLibLongpressModal(kind,dbType,parentId,unitId){
     // قسم محرر نسبة الإتقان - فقط للوحدات الفرعية (ليس العناصر الرئيسية)
     if(!hasColor)renderLongpressMasteryChoices(dbType,entity);
     else{document.getElementById('lib-longpress-mastery-section').style.display='none';longpressMasterySelection=null;}
+    // قسم تعديل الوقت المتوقع - لأي وحدة فرعية (محاضرة/درس/حلقة/صفحة) من أي تصنيف
+    const timeSection=document.getElementById('lib-longpress-time-section');
+    if(!hasColor){
+        timeSection.style.display='block';
+        const totalSec=entity.expectedSeconds||0;
+        document.getElementById('lib-longpress-hours').value=Math.floor(totalSec/3600);
+        document.getElementById('lib-longpress-minutes').value=Math.floor((totalSec%3600)/60);
+    } else {
+        timeSection.style.display='none';
+    }
     document.getElementById('lib-longpress-modal').style.display='flex';
 }
 function handleLongpressIconUpload(event){
     const f=event.target.files[0];if(!f)return;
     const r=new FileReader();
     r.onload=e=>{
-        pendingLongpressIcon=e.target.result;longpressIconRemoved=false;
-        const prev=document.getElementById('lib-longpress-icon-preview');
-        prev.src=pendingLongpressIcon;prev.style.display='block';
+        openImageCropper(e.target.result,croppedDataUrl=>{
+            pendingLongpressIcon=croppedDataUrl;longpressIconRemoved=false;
+            const prev=document.getElementById('lib-longpress-icon-preview');
+            prev.src=pendingLongpressIcon;prev.style.display='block';
+        });
     };
     r.readAsDataURL(f);
 }
@@ -4155,15 +4781,21 @@ function saveLongpressEdit(){
         if(picked)entity.color=picked.getAttribute('data-color');
         if(pendingLongpressIcon)entity.iconImage=pendingLongpressIcon;
         else if(longpressIconRemoved)entity.iconImage=null;
-    } else if(longpressMasterySelection!==null){
-        const dbType=longpressTarget.dbType;
-        if(LONGPRESS_MASTERY_OPTIONS_TC.types.includes(dbType)){
-            entity.timesCompleted=longpressMasterySelection;
-            entity.masteryPercent=masteryPercent(longpressMasterySelection);
-        } else if(LONGPRESS_MASTERY_OPTIONS_COMPLETED.types.includes(dbType)){
-            entity.completed=longpressMasterySelection>0;
-            entity.masteryPercent=longpressMasterySelection;
+    } else {
+        if(longpressMasterySelection!==null){
+            const dbType=longpressTarget.dbType;
+            if(LONGPRESS_MASTERY_OPTIONS_TC.types.includes(dbType)){
+                entity.timesCompleted=longpressMasterySelection;
+                entity.masteryPercent=masteryPercent(longpressMasterySelection);
+            } else if(LONGPRESS_MASTERY_OPTIONS_COMPLETED.types.includes(dbType)){
+                entity.completed=longpressMasterySelection>0;
+                entity.masteryPercent=longpressMasterySelection;
+            }
         }
+        // الوقت المتوقع: يُحفظ لأي وحدة فرعية (محاضرة/درس/حلقة/صفحة) بغض النظر عن تصنيفها
+        const th=parseInt(document.getElementById('lib-longpress-hours').value)||0;
+        const tm=parseInt(document.getElementById('lib-longpress-minutes').value)||0;
+        entity.expectedSeconds=(th*3600)+(tm*60);
     }
     persistLibChange(longpressTarget.dbType);
     closeLibLongpressModal();renderLibrary();showToast('تم الحفظ ✅');
@@ -4171,6 +4803,11 @@ function saveLongpressEdit(){
 function deleteLongpressTarget(){
     if(!longpressTarget)return;
     const{kind,dbType,parentId,unitId}=longpressTarget;
+    const entity=getLibEntity(kind,dbType,parentId,unitId);
+    if(entity&&entity.isDefaultQuran===true){
+        showToast('لا يمكن حذف هذه المهمة الأساسية');
+        return;
+    }
     if(kind==='parent'){
         if(!confirm('حذف هذا العنصر وكل ما بداخله نهائياً؟'))return;
         if(dbType==='subject')subjectsDatabase=subjectsDatabase.filter(x=>x.id!==parentId);
@@ -4185,13 +4822,14 @@ function deleteLongpressTarget(){
         else if(dbType==='series'){const s=seriesDatabase.find(x=>x.id===parentId);if(s)s.episodes=s.episodes.filter(l=>l.id!==unitId);}
         else if(dbType==='newseries'){const s=newSeriesDatabase.find(x=>x.id===parentId);if(s)s.episodes=s.episodes.filter(l=>l.id!==unitId);}
         else if(dbType==='worship-memorize'){const w=worshipDatabase.find(x=>x.id===parentId);if(w&&w.pages)w.pages=w.pages.filter(l=>l.id!==unitId);}
+        else if(dbType==='book-memorize'){const b=booksDatabase.find(x=>x.id===parentId);if(b&&b.pages)b.pages=b.pages.filter(l=>l.id!==unitId);}
     }
     persistLibChange(dbType);
     closeLibLongpressModal();renderLibrary();showToast('تم الحذف');
 }
 function persistLibChange(dbType){
     if(dbType==='subject')saveSubjects();
-    else if(dbType==='book')saveBooks();
+    else if(dbType==='book'||dbType==='book-memorize')saveBooks();
     else if(dbType==='series')saveSeries();
     else if(dbType==='newseries')saveNewSeries();
     else if(dbType==='worship'||dbType==='worship-memorize')saveWorship();
