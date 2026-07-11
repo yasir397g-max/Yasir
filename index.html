@@ -160,10 +160,20 @@
         .mini-tab-btn.current-week.active { border-color: var(--cat-god); color: var(--cat-god); background: rgba(16,172,132,0.08); }
         /* ألوان المواد */
         .color-swatches-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        /* قائمة منسدلة مخصصة بثيم التطبيق (بديل عن select المتصفح الافتراضي) */
+        .custom-select-wrap { position: relative; margin-bottom: 14px; }
+        .custom-select-trigger { display:flex; justify-content:space-between; align-items:center; width:100%; padding:10px 12px; background:var(--bg-color); color:#fff; border:1px solid #262636; border-radius:8px; font-size:13px; cursor:pointer; box-sizing:border-box; }
+        .custom-select-trigger i { color:var(--text-muted); font-size:11px; transition:transform 0.2s; }
+        .custom-select-trigger.open i { transform:rotate(180deg); }
+        .custom-select-options { position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--card-bg); border:1px solid #2d2d3f; border-radius:10px; overflow:hidden; z-index:20; box-shadow:0 8px 20px rgba(0,0,0,0.45); }
+        .custom-select-option { padding:10px 14px; font-size:13px; cursor:pointer; text-align:right; color:var(--text-color); }
+        .custom-select-option:hover { background:rgba(255,255,255,0.06); }
+        .custom-select-option.selected { color:var(--accent-color); font-weight:bold; }
         .color-swatch { width: 30px; height: 30px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s; }
         .color-swatch.selected { border-color: #fff; transform: scale(1.2); }
         .color-swatch.used { opacity: 0.55; position: relative; }
         .color-swatch.used::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 10px; color: rgba(255,255,255,0.85); position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+        .modal-scroll-list { max-height: 260px; overflow-y: auto; }
         .color-swatch-add-btn { flex-shrink: 0; }
         .color-swatch-add-btn:hover { border-color: var(--text-muted); }
         /* صلاة Confirm */
@@ -413,7 +423,6 @@
 <!-- نافذة إنجاز عبادة (قراءة/بسيطة) -->
 <div id="worship-completion-modal" class="prayer-confirm-modal-overlay">
     <div class="prayer-confirm-box">
-        <div style="font-size:38px;margin-bottom:8px;color:var(--cat-god);"><i class="fa-solid fa-hands-praying"></i></div>
         <div class="prayer-confirm-title" id="worship-completion-title">إنجاز عبادة</div>
         <div class="prayer-confirm-subtitle">تقبل الله منك 🌿</div>
         <button class="prayer-btn-done clickable" onclick="confirmWorshipTaskDone()"><i class="fa-solid fa-check-circle"></i> تمت المهمة ✅</button>
@@ -438,6 +447,13 @@
                 <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">إلى صفحة</label>
                 <input type="number" id="worship-read-edit-to" min="1" style="width:100%;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;box-sizing:border-box;">
             </div>
+        </div>
+        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع الإجمالي:</label>
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+            <input type="number" id="worship-read-edit-hours" min="0" max="10" style="width:56px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;box-sizing:border-box;">
+            <span style="color:var(--text-muted);font-size:11px;">ساعة</span>
+            <input type="number" id="worship-read-edit-minutes" min="0" max="59" style="width:56px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;box-sizing:border-box;">
+            <span style="color:var(--text-muted);font-size:11px;">دقيقة</span>
         </div>
         <div style="display:flex;gap:10px;">
             <button class="btn-prime clickable" style="background:var(--cat-god);" onclick="saveWorshipReadEdit()">حفظ</button>
@@ -545,6 +561,47 @@
     </div>
 </div>
 
+<!-- نافذة تأكيد موحّدة (تستبدل نوافذ confirm() الافتراضية بالمتصفح) -->
+<div id="custom-confirm-modal" class="custom-modal-overlay" style="z-index:100010;">
+    <div class="custom-modal-content" style="text-align:center;">
+        <div style="font-size:28px;margin-bottom:10px;color:var(--status-delay);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div id="custom-confirm-message" style="font-size:13px;color:var(--text-color);margin-bottom:18px;line-height:1.7;">هل أنت متأكد؟</div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn-prime clickable" style="background:var(--status-delay);" onclick="acceptCustomConfirm()"><i class="fa-solid fa-trash"></i> تأكيد الحذف</button>
+            <button class="btn-prime clickable" style="background:#262636;color:white;" onclick="closeCustomConfirm()">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة مخصصة لإضافة مهمة قراءة سريعة (من صفحة - إلى صفحة) — تستبدل نوافذ prompt() الافتراضية -->
+<div id="quick-page-range-modal" class="custom-modal-overlay" style="z-index:100010;">
+    <div class="custom-modal-content">
+        <h3 style="margin:0 0 12px 0;color:var(--cat-god);font-size:15px;text-align:right;"><i class="fa-solid fa-book-open"></i> إضافة مهمة قراءة</h3>
+        <div id="quick-page-range-remaining" style="font-size:11px;color:var(--text-muted);margin-bottom:10px;text-align:right;"></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+            <div style="flex:1;">
+                <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">من صفحة:</label>
+                <input type="number" id="quick-page-range-from" min="1" style="width:100%;padding:9px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;text-align:center;">
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">إلى صفحة:</label>
+                <input type="number" id="quick-page-range-to" min="1" style="width:100%;padding:9px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;text-align:center;">
+            </div>
+        </div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">الوقت المتوقع لقراءة هذه الصفحات (تقديرك الشخصي):</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;">
+            <input type="number" id="quick-page-range-hours" value="0" min="0" max="10" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;outline:none;">
+            <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+            <input type="number" id="quick-page-range-minutes" value="20" min="0" max="59" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;outline:none;">
+            <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn-prime clickable" style="background:var(--cat-god);" onclick="submitQuickPageRangeTask()">إضافة</button>
+            <button class="btn-prime clickable" style="background:#262636;color:white;" onclick="closeQuickPageRangeModal()">إلغاء</button>
+        </div>
+    </div>
+</div>
+
 <!-- نافذة تعديل المهمة اليومية -->
 <div id="edit-task-modal" class="edit-task-overlay">
     <div class="edit-task-box">
@@ -618,15 +675,26 @@
             <div class="chip-choice" data-cat="series" onclick="selectModalChip('series')" style="border-color:var(--cat-series);">فقه النفس</div>
             <div class="chip-choice" data-cat="god" onclick="selectModalChip('god')" style="border-color:var(--cat-god);">عبادات</div>
             <div class="chip-choice" data-cat="newseries" onclick="selectModalChip('newseries')" style="border-color:var(--cat-newseries);">السلاسل</div>
+            <div class="chip-choice" data-cat="break" onclick="selectModalChip('break')" style="border-color:var(--cat-break);">استراحة</div>
         </div>
         <div id="modal-subject-picker-area" style="margin-bottom:12px;text-align:right;display:block;">
+            <!-- حقل الوقت المتوقع اليدوي: يظهر فقط لتصنيف "استراحة" أو حالة "بدون تصنيف" (لا مصدر وقت من المكتبة بهاتين الحالتين) -->
+            <div id="modal-expected-time-field" style="display:none;margin-bottom:12px;">
+                <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع:</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="number" id="modal-task-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                    <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+                    <input type="number" id="modal-task-minutes" min="0" max="59" value="15" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                    <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+                </div>
+            </div>
             <!-- قائمة المواد -->
             <div id="modal-subjects-panel">
                 <div id="modal-subjects-injection-pool" style="margin:5px 0;min-height:25px;"></div>
                 <!-- محاضرات المادة المختارة -->
                 <div id="modal-lectures-panel" style="display:none;margin-top:8px;">
                     <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">اختر محاضرة:</div>
-                    <div id="modal-lectures-list"></div>
+                    <div id="modal-lectures-list" class="modal-scroll-list"></div>
                 </div>
             </div>
             <!-- قائمة السلاسل (فقه النفس) -->
@@ -634,7 +702,7 @@
                 <div id="modal-series-injection-pool" style="margin:5px 0;min-height:25px;"></div>
                 <div id="modal-episodes-panel" style="display:none;margin-top:8px;">
                     <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">اختر حلقة:</div>
-                    <div id="modal-episodes-list"></div>
+                    <div id="modal-episodes-list" class="modal-scroll-list"></div>
                 </div>
             </div>
             <!-- قائمة الكتب -->
@@ -643,7 +711,7 @@
                 <!-- دروس/صفحات الكتاب المختار (حسب وضعه: دراسة/قراءة/حفظ) -->
                 <div id="modal-lessons-panel" style="display:none;margin-top:8px;">
                     <div id="modal-lessons-label" style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">اختر درساً:</div>
-                    <div id="modal-lessons-list"></div>
+                    <div id="modal-lessons-list" class="modal-scroll-list"></div>
                 </div>
             </div>
             <!-- قائمة العبادات (كل العبادات المضافة: قراءة/حفظ/بسيطة) -->
@@ -651,7 +719,7 @@
                 <div id="modal-worship-injection-pool" style="margin:5px 0;min-height:25px;"></div>
                 <div id="modal-worship-pages-panel" style="display:none;margin-top:8px;">
                     <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">اختر صفحة حفظ:</div>
-                    <div id="modal-worship-pages-list"></div>
+                    <div id="modal-worship-pages-list" class="modal-scroll-list"></div>
                 </div>
             </div>
             <!-- لوحة "السلاسل" (تبويب المسلسلات/المحتوى الترفيهي الجديد) -->
@@ -659,7 +727,7 @@
                 <div id="modal-newseries-injection-pool" style="margin:5px 0;min-height:25px;"></div>
                 <div id="modal-newseries-episodes-panel" style="display:none;margin-top:8px;">
                     <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">اختر حلقة:</div>
-                    <div id="modal-newseries-episodes-list"></div>
+                    <div id="modal-newseries-episodes-list" class="modal-scroll-list"></div>
                 </div>
             </div>
         </div>
@@ -987,7 +1055,7 @@
 </div>
 
 <!-- نافذة اختيار لون مخصص أنيقة (بديل عن منتقي الألوان الأصلي بالمتصفح) -->
-<div id="custom-color-picker-modal" class="custom-modal-overlay">
+<div id="custom-color-picker-modal" class="custom-modal-overlay" style="z-index:10500;">
     <div class="custom-modal-content" style="max-width:340px;">
         <h3 style="margin:0 0 12px 0;color:var(--accent-color);font-size:15px;text-align:right;"><i class="fa-solid fa-palette"></i> اختر لوناً إضافياً</h3>
         <div id="curated-color-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;justify-content:flex-start;"></div>
@@ -1024,6 +1092,15 @@
         <h3 style="margin:0 0 12px 0;color:var(--accent-color);font-size:15px;text-align:right;"><i class="fa-solid fa-book-bookmark"></i> إضافة مادة جديدة</h3>
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">اسم المادة:</label>
         <input type="text" id="input-subject-name-emoji" placeholder="اسم المادة (يمكن إضافة إيموجي 📝)" style="width:100%;padding:10px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:right;">
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">توليد محاضرات بالجملة الآن (اختياري — اتركه 0 لإضافتها لاحقاً واحدة تلو الأخرى):</div>
+        <input type="number" id="add-subject-lecture-count" min="0" max="500" value="0" placeholder="عدد المحاضرات (0 = لا شيء الآن)" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:center;">
+        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل محاضرة:</label>
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+            <input type="number" id="add-subject-lecture-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+            <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+            <input type="number" id="add-subject-lecture-minutes" min="0" max="59" value="30" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+            <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+        </div>
         <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">اختر لون المادة (كل لون يُستخدم مرة واحدة):</div>
         <div class="color-swatches-row" id="subject-color-swatches" style="margin-bottom:14px;">
             <div class="color-swatch selected" data-color="#3498db" style="background:#3498db;" onclick="selectSubjectColor('#3498db',this)"></div>
@@ -1074,16 +1151,41 @@
         <input type="text" id="add-book-name" placeholder="اسم الكتاب" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:right;font-family:inherit;">
         <div id="book-unittype-field">
             <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">اسم الوحدة (محاضرة / حلقة / درس):</label>
-            <select id="add-book-unit-type" style="width:100%;padding:10px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:8px;margin-bottom:14px;font-size:13px;">
-                <option value="درس">درس</option>
-                <option value="حلقة">حلقة</option>
-                <option value="محاضرة">محاضرة</option>
-                <option value="جزء">جزء</option>
-            </select>
+            <div class="custom-select-wrap">
+                <div class="custom-select-trigger" id="csel-add-book-unit-type-trigger" onclick="toggleCustomSelect('add-book-unit-type')">
+                    <span id="csel-add-book-unit-type-label">درس</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="custom-select-options" id="csel-add-book-unit-type-options" style="display:none;">
+                    <div class="custom-select-option selected" data-key="add-book-unit-type" data-value="درس" onclick="pickCustomSelectOption('add-book-unit-type','درس')">درس</div>
+                    <div class="custom-select-option" data-key="add-book-unit-type" data-value="حلقة" onclick="pickCustomSelectOption('add-book-unit-type','حلقة')">حلقة</div>
+                    <div class="custom-select-option" data-key="add-book-unit-type" data-value="محاضرة" onclick="pickCustomSelectOption('add-book-unit-type','محاضرة')">محاضرة</div>
+                    <div class="custom-select-option" data-key="add-book-unit-type" data-value="جزء" onclick="pickCustomSelectOption('add-book-unit-type','جزء')">جزء</div>
+                </div>
+                <input type="hidden" id="add-book-unit-type" value="درس">
+            </div>
+            <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">عدد الوحدات (تُولَّد تلقائياً عند الإنشاء):</label>
+            <input type="number" id="add-book-unit-count" min="1" max="500" value="10" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:center;">
+            <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل وحدة:</label>
+            <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+                <input type="number" id="add-book-unit-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+                <input type="number" id="add-book-unit-minutes" min="0" max="59" value="30" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+            </div>
         </div>
         <div id="book-pages-field" style="display:none;">
             <label id="book-pages-label" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">إجمالي عدد الصفحات:</label>
             <input type="number" id="add-book-pages" min="1" max="2000" value="200" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:14px;text-align:center;">
+        </div>
+        <div id="book-page-time-field" style="display:none;">
+            <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل صفحة:</label>
+            <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+                <input type="number" id="add-book-page-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+                <input type="number" id="add-book-page-minutes" min="0" max="59" value="15" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+            </div>
         </div>
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">اللون:</label>
         <div class="color-swatches-row" id="book-color-swatches" style="margin-bottom:14px;">
@@ -1118,13 +1220,27 @@
         <h3 style="margin:0 0 12px 0;color:var(--cat-series);font-size:15px;text-align:right;"><i class="fa-solid fa-spa"></i> إضافة سلسلة فقه نفس جديدة</h3>
         <input type="text" id="add-series-name" placeholder="اسم السلسلة (مثال: تفسير ابن كثير)" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:right;font-family:inherit;">
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">اسم الوحدة:</label>
-        <select id="add-series-unit-type" style="width:100%;padding:10px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:8px;margin-bottom:10px;font-size:13px;">
-            <option value="حلقة">حلقة</option>
-            <option value="درس">درس</option>
-            <option value="محاضرة">محاضرة</option>
-        </select>
+        <div class="custom-select-wrap">
+            <div class="custom-select-trigger" id="csel-add-series-unit-type-trigger" onclick="toggleCustomSelect('add-series-unit-type')">
+                <span id="csel-add-series-unit-type-label">حلقة</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="custom-select-options" id="csel-add-series-unit-type-options" style="display:none;">
+                <div class="custom-select-option selected" data-key="add-series-unit-type" data-value="حلقة" onclick="pickCustomSelectOption('add-series-unit-type','حلقة')">حلقة</div>
+                <div class="custom-select-option" data-key="add-series-unit-type" data-value="درس" onclick="pickCustomSelectOption('add-series-unit-type','درس')">درس</div>
+                <div class="custom-select-option" data-key="add-series-unit-type" data-value="محاضرة" onclick="pickCustomSelectOption('add-series-unit-type','محاضرة')">محاضرة</div>
+            </div>
+            <input type="hidden" id="add-series-unit-type" value="حلقة">
+        </div>
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">عدد الحلقات (يتم توليدها تلقائياً):</label>
-        <input type="number" id="add-series-count" min="1" max="500" value="30" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:14px;text-align:center;">
+        <input type="number" id="add-series-count" min="1" max="500" value="30" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:center;">
+        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل حلقة:</label>
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+            <input type="number" id="add-series-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+            <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+            <input type="number" id="add-series-minutes" min="0" max="59" value="30" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+            <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+        </div>
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:6px;">اللون:</label>
         <div class="color-swatches-row" id="series-color-swatches" style="margin-bottom:14px;">
             <div class="color-swatch selected" data-color="#e67e22" style="background:#e67e22;" onclick="selectSeriesColor('#e67e22',this)"></div>
@@ -1155,13 +1271,27 @@
         <h3 style="margin:0 0 12px 0;color:var(--cat-newseries);font-size:15px;text-align:right;"><i class="fa-solid fa-clapperboard"></i> إضافة سلسلة جديدة</h3>
         <input type="text" id="add-newseries-name" placeholder="اسم السلسلة (مثال: مسلسل كذا)" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:right;font-family:inherit;">
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">اسم الوحدة:</label>
-        <select id="add-newseries-unit-type" style="width:100%;padding:10px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:8px;margin-bottom:10px;font-size:13px;">
-            <option value="حلقة">حلقة</option>
-            <option value="درس">درس</option>
-            <option value="محاضرة">محاضرة</option>
-        </select>
+        <div class="custom-select-wrap">
+            <div class="custom-select-trigger" id="csel-add-newseries-unit-type-trigger" onclick="toggleCustomSelect('add-newseries-unit-type')">
+                <span id="csel-add-newseries-unit-type-label">حلقة</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="custom-select-options" id="csel-add-newseries-unit-type-options" style="display:none;">
+                <div class="custom-select-option selected" data-key="add-newseries-unit-type" data-value="حلقة" onclick="pickCustomSelectOption('add-newseries-unit-type','حلقة')">حلقة</div>
+                <div class="custom-select-option" data-key="add-newseries-unit-type" data-value="درس" onclick="pickCustomSelectOption('add-newseries-unit-type','درس')">درس</div>
+                <div class="custom-select-option" data-key="add-newseries-unit-type" data-value="محاضرة" onclick="pickCustomSelectOption('add-newseries-unit-type','محاضرة')">محاضرة</div>
+            </div>
+            <input type="hidden" id="add-newseries-unit-type" value="حلقة">
+        </div>
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">عدد الحلقات (يتم توليدها تلقائياً):</label>
-        <input type="number" id="add-newseries-count" min="1" max="500" value="30" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:14px;text-align:center;">
+        <input type="number" id="add-newseries-count" min="1" max="500" value="30" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:center;">
+        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل حلقة:</label>
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+            <input type="number" id="add-newseries-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+            <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+            <input type="number" id="add-newseries-minutes" min="0" max="59" value="30" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+            <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+        </div>
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:6px;">اللون:</label>
         <div class="color-swatches-row" id="newseries-color-swatches" style="margin-bottom:14px;">
             <div class="color-swatch selected" data-color="#e84393" style="background:#e84393;" onclick="selectNewSeriesColor('#e84393',this)"></div>
@@ -1210,6 +1340,13 @@
         <div id="worship-target-field" style="display:none;">
             <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">العدد المستهدف يومياً (اختياري):</label>
             <input type="number" id="add-worship-target" min="1" placeholder="مثال: 100 (اتركه فارغاً إن لم يوجد عدد)" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:14px;text-align:center;">
+            <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع للمهمة:</label>
+            <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+                <input type="number" id="add-worship-simple-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
+                <input type="number" id="add-worship-simple-minutes" min="0" max="59" value="15" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
+                <span style="color:var(--text-muted);font-size:12px;">دقيقة</span>
+            </div>
         </div>
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:6px;">اللون:</label>
         <div class="color-swatches-row" id="worship-color-swatches" style="margin-bottom:14px;">
@@ -1481,7 +1618,7 @@ const currentWeekKey='w'+Math.min(Math.ceil(todayDateObj.getDate()/7),4);
 let currentSelectedDay=currentActualDayKey;
 let studioActiveTaskIndex=null;
 let selectedModalCategory='study';
-const chipColors={study:'var(--cat-study)',book:'var(--cat-book)',series:'var(--cat-series)',god:'var(--cat-god)',newseries:'var(--cat-newseries)'};
+const chipColors={study:'var(--cat-study)',book:'var(--cat-book)',series:'var(--cat-series)',god:'var(--cat-god)',newseries:'var(--cat-newseries)',break:'var(--cat-break)'};
 let selectedModalSubjectId=null;
 let activePlanWeekContext='all';
 let premiumPomoInterval=null,isPomoRunning=false,pomoCurrentMode='focus',pomoMinutesLeft=25,pomoSecondsLeft=0;
@@ -1522,9 +1659,40 @@ function getStationTimeLabel(sk){
     const def=stationDefaultTimes[sk];
     return def?`${formatTime12(def.from)} — ${formatTime12(def.to)}`:'اضغط لتحديد الوقت';
 }
+// ---- قائمة منسدلة مخصصة بثيم التطبيق (بديل عن select المتصفح) — key = نفس id الحقل المخفي الحامل للقيمة الفعلية ----
+function toggleCustomSelect(key){
+    const opts=document.getElementById('csel-'+key+'-options');if(!opts)return;
+    const isOpen=opts.style.display==='block';
+    document.querySelectorAll('.custom-select-options').forEach(o=>o.style.display='none');
+    document.querySelectorAll('.custom-select-trigger').forEach(t=>t.classList.remove('open'));
+    if(!isOpen){opts.style.display='block';const tr=document.getElementById('csel-'+key+'-trigger');if(tr)tr.classList.add('open');}
+}
+function pickCustomSelectOption(key,value){
+    const hidden=document.getElementById(key);if(hidden)hidden.value=value;
+    const lbl=document.getElementById('csel-'+key+'-label');if(lbl)lbl.innerText=value;
+    const opts=document.getElementById('csel-'+key+'-options');if(opts)opts.style.display='none';
+    const tr=document.getElementById('csel-'+key+'-trigger');if(tr)tr.classList.remove('open');
+    document.querySelectorAll(`.custom-select-option[data-key="${key}"]`).forEach(o=>o.classList.toggle('selected',o.getAttribute('data-value')===value));
+}
+document.addEventListener('click',function(e){
+    if(!e.target.closest('.custom-select-wrap')){
+        document.querySelectorAll('.custom-select-options').forEach(o=>o.style.display='none');
+        document.querySelectorAll('.custom-select-trigger').forEach(t=>t.classList.remove('open'));
+    }
+});
 function getStationEffectiveTimes(sk){
     if(stationTimesDB[sk]&&stationTimesDB[sk].from)return stationTimesDB[sk];
     return stationDefaultTimes[sk]||{from:'',to:''};
+}
+// نصف ساعة محجوزة لكل صلاة من الصلوات الخمس، تبدأ من وقت أذانها (بداية فترتها الخاصة: فجر/ظهر/عصر/مغرب/عشاء)
+// "الضحى" ليست صلاة مفروضة فلا تُحسب هنا. هذا المجموع (5×نصف ساعة=2.5 ساعة) هو نفسه المحجوز أصلاً بإجمالي اليوم (calcPureFree)
+const prayerStationKeys=['fajr','dhuhr','asr','maghrib','isha'];
+function getPrayerReservedSlots(){
+    return prayerStationKeys.map(sk=>{
+        const t=getStationEffectiveTimes(sk);
+        if(!t.from)return null;
+        return{from:t.from,to:addMinutesToTime(t.from,30)};
+    }).filter(Boolean);
 }
 
 // ================================================================
@@ -1645,7 +1813,7 @@ function dispatchTouchDrop(taskId,zone){
     } else if(zone.classList.contains('station-tasks-drop-zone')){
         const sk=zone.getAttribute('data-station');
         const t=storedDailyTasks.find(x=>x.id===taskId);
-        if(t&&sk){t.station=sk;t.status='wait';t.progressCounted=false;saveTasks();renderDailyTasks();}
+        if(t&&sk){t.station=sk;t.status='wait';t.progressCounted=false;saveTasks();syncStationToTodayPeriod(t.id);renderDailyTasks();}
     } else if(zone.classList.contains('day-period-drop-zone')){
         const dk=zone.getAttribute('data-day');const pk=zone.getAttribute('data-period');
         if(dk&&pk)dropTaskOnPeriod(taskId,dk,pk);
@@ -1786,6 +1954,12 @@ function confirmWorshipTaskDone(){
                 b.pagesReadCount=Math.min(b.totalPages||pagesInTask,(b.pagesReadCount||0)+pagesInTask);
                 saveBooks();
             }
+        } else if(t.unitKind==='worship-simple'&&t.worshipId){
+            const w=worshipDatabase.find(x=>x.id===t.worshipId);
+            if(w){
+                w.completionCount=(w.completionCount||0)+1;
+                saveWorship();
+            }
         }
         t.progressCounted=true;
     }
@@ -1809,6 +1983,9 @@ function openWorshipReadEditModal(taskId){
     editingWorshipReadTaskId=taskId;
     document.getElementById('worship-read-edit-from').value=t.fromPage||1;
     document.getElementById('worship-read-edit-to').value=t.toPage||1;
+    const es=t.expectedSeconds||0;
+    document.getElementById('worship-read-edit-hours').value=Math.floor(es/3600);
+    document.getElementById('worship-read-edit-minutes').value=Math.floor((es%3600)/60);
     document.getElementById('worship-read-edit-modal').style.display='flex';
 }
 function closeWorshipReadEditModal(){document.getElementById('worship-read-edit-modal').style.display='none';editingWorshipReadTaskId=null;}
@@ -1818,6 +1995,9 @@ function saveWorshipReadEdit(){
     const from=parseInt(document.getElementById('worship-read-edit-from').value)||1;
     const to=parseInt(document.getElementById('worship-read-edit-to').value)||from;
     t.fromPage=Math.min(from,to);t.toPage=Math.max(from,to);
+    const eh=parseInt(document.getElementById('worship-read-edit-hours').value)||0;
+    const em=parseInt(document.getElementById('worship-read-edit-minutes').value)||0;
+    t.expectedSeconds=(eh*3600)+(em*60);
     if(t.unitKind==='book-read'&&t.bookId){
         const b=booksDatabase.find(x=>x.id===t.bookId);
         if(b)t.title=`${b.name} — قراءة من صفحة ${t.fromPage} إلى ${t.toPage}`;
@@ -1924,12 +2104,21 @@ function checkDayTransition(){
     const todayStr=currentActualDayKey+'-'+todayDateObj.toDateString();
     if(savedDay&&savedDay!==todayStr){
         // يوم جديد: المنجزات تختفي، غير المنجزة تنزل للتراكم
+        const yesterdayKey=dayKeysMap[(todayDateObj.getDay()+6)%7];
+        const idsToUnbind=[]; // معرّفات يجب إزالتها من فترة يوم الأمس (منجزة محذوفة أو مركونة/متعثرة)
         storedDailyTasks=storedDailyTasks.map(t=>{
             if(t.isPrayerAnchor){t.status='wait';t.withSunnah=false;return t;}
-            if(t.status==='done')return null; // تحذف المنجزة
-            if(t.status==='wait'||t.status==='work'){t.status='parking';return t;}
+            if(t.status==='done'){idsToUnbind.push(t.id);return null;} // تحذف المنجزة
+            if(t.status==='wait'||t.status==='work'){idsToUnbind.push(t.id);t.status='parking';return t;}
             return t;
         }).filter(Boolean);
+        // تحرير فترات يوم الأمس (الربط الكامل بين المحطة والفترة): المهمة المحذوفة/المركونة لم تعد تشغل أي فترة
+        if(idsToUnbind.length&&periodTasksDB[yesterdayKey]){
+            Object.keys(periodTasksDB[yesterdayKey]).forEach(sk=>{
+                periodTasksDB[yesterdayKey][sk]=periodTasksDB[yesterdayKey][sk].filter(id=>!idsToUnbind.includes(id));
+            });
+            savePeriodTasks();
+        }
         saveTasks();
         showToast('يوم جديد! المهام المتعثرة نزلت للتراكم 📋');
     }
@@ -1956,7 +2145,7 @@ function saveEditTask(){
     const nt=document.getElementById('edit-task-title-inp').value.trim();
     if(!nt){showToast("اسم المهمة لا يمكن أن يكون فارغاً");return;}
     t.title=nt;t.station=document.getElementById('edit-task-station-sel').value;
-    saveTasks();closeEditTaskModal();showToast("تم تعديل المهمة","var(--cat-study)");
+    saveTasks();syncStationToTodayPeriod(t.id);closeEditTaskModal();showToast("تم تعديل المهمة","var(--cat-study)");
     if(studioActiveTaskIndex!==null&&storedDailyTasks[studioActiveTaskIndex]&&storedDailyTasks[studioActiveTaskIndex].id===editingTaskId)
         document.getElementById('studio-task-title').innerText=nt;
     if(wmStudioActiveTaskIndex!==null&&storedDailyTasks[wmStudioActiveTaskIndex]&&storedDailyTasks[wmStudioActiveTaskIndex].id===editingTaskId)
@@ -1995,6 +2184,24 @@ function toggleGoalEditInner(){document.getElementById('goal-edit-inner').classL
 // ================================================================
 // توزيع المهام على الفترات (بديل الرادار)
 // ================================================================
+// ---- ربط كامل بين نظام "المحطة" (station) ونظام "الفترة" (periodTasksDB) لليوم الفعلي الحالي ----
+// عند إسناد/تغيير محطة أي مهمة نشطة، نضعها تلقائياً بفترة اليوم الفعلي المطابقة (ونزيلها من أي يوم/فترة أخرى كانت فيها)
+function syncStationToTodayPeriod(taskId){
+    const t=storedDailyTasks.find(x=>x.id===taskId);
+    if(!t||!t.station||!stationKeys.includes(t.station))return;
+    const dk=currentActualDayKey;
+    Object.keys(periodTasksDB).forEach(odk=>{
+        Object.keys(periodTasksDB[odk]||{}).forEach(osk=>{
+            if(periodTasksDB[odk][osk]&&periodTasksDB[odk][osk].includes(taskId)&&!(odk===dk&&osk===t.station)){
+                periodTasksDB[odk][osk]=periodTasksDB[odk][osk].filter(id=>id!==taskId);
+            }
+        });
+    });
+    if(!periodTasksDB[dk])periodTasksDB[dk]={};
+    if(!periodTasksDB[dk][t.station])periodTasksDB[dk][t.station]=[];
+    if(!periodTasksDB[dk][t.station].includes(taskId))periodTasksDB[dk][t.station].push(taskId);
+    savePeriodTasks();
+}
 function dropTaskOnPeriod(taskId,dayKey,periodKey){
     // احذف المهمة من أي فترة في أي يوم (وليس فقط نفس اليوم) لمنع أي تكرار عبر الأيام
     Object.keys(periodTasksDB).forEach(dk=>{
@@ -2012,6 +2219,8 @@ function dropTaskOnPeriod(taskId,dayKey,periodKey){
     // حدّث targetDay للمهمة نفسها لتطابق اليوم الجديد فعلياً وتجنب أي تعارض مع صندوق "مهام غير موزّعة"
     const t=storedDailyTasks.find(x=>x.id===taskId);
     if(t)t.targetDay=dayKey;
+    // ربط كامل: لو الفترة المُسندة هي فترة اليوم الفعلي الحالي، حدّث محطة المهمة لتطابق (بحيث تنعكس فوراً بصفحة المهام اليومية)
+    if(t&&dayKey===currentActualDayKey)t.station=periodKey;
     savePeriodTasks();saveTasks();
     showToast(`تم وضع المهمة في ${stationLabelsArabic[periodKey]}`);
     renderHierarchicalTopDownSystem();
@@ -2025,15 +2234,16 @@ function removeTaskFromPeriod(taskId,dayKey,periodKey){
 // بناء واجهة الفترات لليوم في صفحة التخطيط
 function buildDayPeriodsView(dayKey){
     let html='<div class="day-periods-container">';
-    const sl=fixedSleepDatabase[dayKey]||[],rl=routineDatabase[dayKey]||[];
+    const sl=fixedSleepDatabase[dayKey]||[],rl=routineDatabase[dayKey]||[],pl=getPrayerReservedSlots();
     stationKeys.forEach(sk=>{
         const times=getStationEffectiveTimes(sk);
         const fromF=formatTime12(times.from),toF=formatTime12(times.to);
-        // حساب الفراغ في هذه الفترة (نفس منطق الصفحة الأولى) — مع خصم الوقت المتوقع للمهام المُسندة فعلياً لهذه الفترة
+        // حساب الفراغ في هذه الفترة (نفس منطق الصفحة الأولى) — مع خصم الوقت المتوقع للمهام المُسندة فعلياً لهذه الفترة، وخصم وقت الصلاة (نصف ساعة من الأذان)
         let occ=0;const tot=times.from&&times.to?calcHDiff(times.from,times.to):0;
         if(times.from&&times.to){
             sl.forEach(s=>{if(s.from&&s.to)occ+=calcOverlap(times.from,times.to,s.from,s.to);});
             rl.forEach(s=>{if(!s.isSuspended&&s.from&&s.to)occ+=calcOverlap(times.from,times.to,s.from,s.to);});
+            pl.forEach(p=>{occ+=calcOverlap(times.from,times.to,p.from,p.to);});
         }
         const periodTasks=(periodTasksDB[dayKey]&&periodTasksDB[dayKey][sk])?periodTasksDB[dayKey][sk]:[];
         let tasksSeconds=0;
@@ -2374,6 +2584,9 @@ function openAddSubjectModal(){
     refreshSubjectColorSwatches();
     renderExistingSubjectsPreview();
     document.getElementById('input-subject-name-emoji').value='';
+    document.getElementById('add-subject-lecture-count').value='0';
+    document.getElementById('add-subject-lecture-hours').value='0';
+    document.getElementById('add-subject-lecture-minutes').value='30';
     pendingSubjectIcon=null;
     document.getElementById('add-subject-icon-preview').style.display='none';
     document.getElementById('add-subject-icon-input').value='';
@@ -2384,27 +2597,49 @@ function closeAddSubjectModal(){document.getElementById('add-subject-modal').sty
 function submitAddNewSubjectToBank(){
     const n=document.getElementById('input-subject-name-emoji').value.trim();
     if(!n){showToast("الرجاء كتابة اسم المادة");return;}
-    subjectsDatabase.push({id:'sub-'+Date.now(),name:n,color:currentSubjectColorSelected,iconImage:pendingSubjectIcon,lectures:[]});
+    const lectureCount=Math.max(0,Math.min(500,parseInt(document.getElementById('add-subject-lecture-count').value)||0));
+    const lh=parseInt(document.getElementById('add-subject-lecture-hours').value)||0;
+    const lm=parseInt(document.getElementById('add-subject-lecture-minutes').value)||0;
+    const lectureExpectedSeconds=(lh*3600)+(lm*60);
+    const lectures=[];
+    for(let i=1;i<=lectureCount;i++){
+        lectures.push({id:'unit-'+Date.now()+'-'+i,name:`محاضرة ${i}`,masteryPercent:0,completed:false,expectedSeconds:lectureExpectedSeconds});
+    }
+    subjectsDatabase.push({id:'sub-'+Date.now(),name:n,color:currentSubjectColorSelected,iconImage:pendingSubjectIcon,lectures});
     saveSubjects();
     document.getElementById('input-subject-name-emoji').value='';
+    document.getElementById('add-subject-lecture-count').value='0';
+    document.getElementById('add-subject-lecture-hours').value='0';
+    document.getElementById('add-subject-lecture-minutes').value='30';
     pendingSubjectIcon=null;
     document.getElementById('add-subject-icon-preview').style.display='none';
     document.getElementById('add-subject-icon-input').value='';
     refreshSubjectColorSwatches();
     renderExistingSubjectsPreview();
-    showToast("تمت إضافة المادة — أضف التالية أو أغلق","var(--cat-study)");
+    showToast(lectureCount>0?`تمت إضافة المادة بـ ${lectureCount} محاضرة — أضف التالية أو أغلق`:"تمت إضافة المادة — أضف التالية أو أغلق","var(--cat-study)");
     renderLibrary();
 }
+// ---- نافذة تأكيد مخصصة موحّدة (تستبدل confirm() الافتراضية) ----
+let _pendingConfirmCallback=null;
+function showCustomConfirm(message,onConfirm){
+    document.getElementById('custom-confirm-message').innerText=message;
+    _pendingConfirmCallback=onConfirm;
+    document.getElementById('custom-confirm-modal').style.display='flex';
+}
+function closeCustomConfirm(){document.getElementById('custom-confirm-modal').style.display='none';_pendingConfirmCallback=null;}
+function acceptCustomConfirm(){const cb=_pendingConfirmCallback;closeCustomConfirm();if(cb)cb();}
+
 function deleteSubjectFromBank(id,e){
     if(e)e.stopPropagation();
     const s=subjectsDatabase.find(x=>x.id===id);
     if(!s)return;
-    // نافذة تأكيد بدل الحذف الفوري
-    if(!confirm(`هل تريد حذف مادة "${s.name}" نهائياً؟`))return;
-    subjectsDatabase=subjectsDatabase.filter(x=>x.id!==id);
-    saveSubjects();
-    showToast("تم حذف المادة");
-    renderLibrary();
+    // نافذة تأكيد مخصصة بدل الحذف الفوري
+    showCustomConfirm(`هل تريد حذف مادة "${s.name}" نهائياً؟`,()=>{
+        subjectsDatabase=subjectsDatabase.filter(x=>x.id!==id);
+        saveSubjects();
+        showToast("تم حذف المادة");
+        renderLibrary();
+    });
 }
 let selectedModalParentId=null,selectedModalUnitKind=null;
 
@@ -2483,8 +2718,8 @@ function renderModalBooksPool(){
     if(!booksDatabase.length){c.innerHTML='<div style="color:var(--text-muted);font-size:11px;">لا توجد كتب. أضفها من صفحة المكتبة.</div>';return;}
     c.innerHTML=booksDatabase.map(b=>{
         const mode=b.mode||'study';
-        const icon=mode==='reading'?'<i class="fa-solid fa-book-open"></i>':mode==='memorize'?'<i class="fa-solid fa-brain"></i>':'<i class="fa-solid fa-book"></i>';
-        return`<div class="subject-badge-card clickable" style="border-color:${b.color};" onclick="selectBookForTask('${b.id}')">${icon} ${b.name}</div>`;
+        const modeLabel=mode==='reading'?'قراءة':mode==='memorize'?'حفظ':'دراسة';
+        return`<div class="subject-badge-card clickable" style="border-color:${b.color};" onclick="selectBookForTask('${b.id}')">${b.name} <span style="font-size:9px;color:var(--text-muted);">(${modeLabel})</span></div>`;
     }).join('');
 }
 let pendingBookReadRange=null;
@@ -2521,10 +2756,17 @@ function selectBookForTask(bookId){
         const toDefault=Math.min(fromDefault+19,b.totalPages);
         ll.innerHTML=`<div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:10px;">
             <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">المتبقي: ${remaining} صفحة (من ${fromDefault} إلى ${b.totalPages})</div>
-            <div style="display:flex;gap:8px;align-items:center;">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
                 <input type="number" id="book-read-from" value="${fromDefault}" min="1" max="${b.totalPages}" style="flex:1;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingBookRange('${b.id}')">
                 <span style="color:var(--text-muted);font-size:11px;">إلى</span>
                 <input type="number" id="book-read-to" value="${toDefault}" min="1" max="${b.totalPages}" style="flex:1;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingBookRange('${b.id}')">
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">الوقت المتوقع لقراءة هذه الصفحات (تقديرك الشخصي):</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <input type="number" id="book-read-hours" value="0" min="0" max="10" style="width:56px;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingBookRange('${b.id}')">
+                <span style="color:var(--text-muted);font-size:11px;">ساعة</span>
+                <input type="number" id="book-read-minutes" value="30" min="0" max="59" style="width:56px;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingBookRange('${b.id}')">
+                <span style="color:var(--text-muted);font-size:11px;">دقيقة</span>
             </div>
         </div>`;
         updatePendingBookRange(b.id);
@@ -2543,7 +2785,9 @@ function selectBookForTask(bookId){
 function updatePendingBookRange(bookId){
     const from=parseInt(document.getElementById('book-read-from').value)||1;
     const to=parseInt(document.getElementById('book-read-to').value)||from;
-    pendingBookReadRange={from,to:Math.max(from,to)};
+    const bh=parseInt(document.getElementById('book-read-hours').value)||0;
+    const bm=parseInt(document.getElementById('book-read-minutes').value)||0;
+    pendingBookReadRange={from,to:Math.max(from,to),expectedSeconds:(bh*3600)+(bm*60)};
     selectedModalUnitId='reading-'+bookId; // قيمة رمزية لتفعيل زر الحفظ
 }
 function backToBooksList(){selectedModalParentId=null;selectedModalUnitId=null;selectedModalUnitKind=null;pendingBookReadRange=null;document.getElementById('modal-lessons-panel').style.display='none';renderModalBooksPool();}
@@ -2554,8 +2798,7 @@ function renderModalWorshipPool(){
     const c=document.getElementById('modal-worship-injection-pool');if(!c)return;
     if(!worshipDatabase.length){c.innerHTML='<div style="color:var(--text-muted);font-size:11px;">لا توجد عبادات. أضفها من صفحة المكتبة.</div>';return;}
     c.innerHTML=worshipDatabase.map(w=>{
-        const icon=w.type==='reading'?'<i class="fa-solid fa-book-open"></i>':w.type==='memorize'?'<i class="fa-solid fa-brain"></i>':'<i class="fa-solid fa-hands-praying"></i>';
-        return`<div class="subject-badge-card clickable" style="border-color:${w.color};" onclick="selectWorshipForTask('${w.id}')">${icon} ${w.name}</div>`;
+        return`<div class="subject-badge-card clickable" style="border-color:${w.color};" onclick="selectWorshipForTask('${w.id}')">${w.name}</div>`;
     }).join('');
 }
 function selectWorshipForTask(worshipId){
@@ -2589,10 +2832,17 @@ function selectWorshipForTask(worshipId){
         const toDefault=Math.min(fromDefault+19,w.totalPages);
         ll.innerHTML=`<div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:10px;">
             <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">المتبقي: ${remaining} صفحة (من ${fromDefault} إلى ${w.totalPages})</div>
-            <div style="display:flex;gap:8px;align-items:center;">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
                 <input type="number" id="worship-read-from" value="${fromDefault}" min="1" max="${w.totalPages}" style="flex:1;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingWorshipRange('${w.id}')">
                 <span style="color:var(--text-muted);font-size:11px;">إلى</span>
                 <input type="number" id="worship-read-to" value="${toDefault}" min="1" max="${w.totalPages}" style="flex:1;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingWorshipRange('${w.id}')">
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">الوقت المتوقع لقراءة هذه الصفحات (تقديرك الشخصي):</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <input type="number" id="worship-read-hours" value="0" min="0" max="10" style="width:56px;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingWorshipRange('${w.id}')">
+                <span style="color:var(--text-muted);font-size:11px;">ساعة</span>
+                <input type="number" id="worship-read-minutes" value="15" min="0" max="59" style="width:56px;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingWorshipRange('${w.id}')">
+                <span style="color:var(--text-muted);font-size:11px;">دقيقة</span>
             </div>
         </div>`;
         updatePendingWorshipRange(w.id);
@@ -2610,7 +2860,9 @@ function selectWorshipForTask(worshipId){
 function updatePendingWorshipRange(worshipId){
     const from=parseInt(document.getElementById('worship-read-from').value)||1;
     const to=parseInt(document.getElementById('worship-read-to').value)||from;
-    pendingWorshipReadRange={from,to:Math.max(from,to)};
+    const wh=parseInt(document.getElementById('worship-read-hours').value)||0;
+    const wm=parseInt(document.getElementById('worship-read-minutes').value)||0;
+    pendingWorshipReadRange={from,to:Math.max(from,to),expectedSeconds:(wh*3600)+(wm*60)};
     selectedModalUnitId='reading-'+worshipId; // قيمة رمزية لتفعيل زر الحفظ
 }
 function backToWorshipList(){selectedModalParentId=null;selectedModalUnitId=null;selectedModalUnitKind=null;pendingWorshipReadRange=null;pendingWorshipSimpleCount=null;document.getElementById('modal-worship-pages-panel').style.display='none';renderModalWorshipPool();}
@@ -2624,7 +2876,12 @@ function selectUnitForTask(unitId,el){
     document.getElementById('input-modal-station').value='morning';
 }
 
+function resetModalExpectedTimeField(){
+    document.getElementById('modal-task-hours').value='0';
+    document.getElementById('modal-task-minutes').value='15';
+}
 function selectModalChip(c){
+    const timeField=document.getElementById('modal-expected-time-field');
     // خاصية إلغاء التحديد: الضغط على الشريحة المحددة حالياً يلغي التصنيف بالكامل
     if(c===selectedModalCategory){
         selectedModalCategory=null;selectedModalUnitId=null;selectedModalParentId=null;selectedModalUnitKind=null;
@@ -2634,13 +2891,14 @@ function selectModalChip(c){
             x.style.background='';x.style.color='';x.style.borderColor=cc;
         });
         const a=document.getElementById('modal-subject-picker-area');
-        a.style.display='none';
+        a.style.display='block';
         ['modal-subjects-panel','modal-series-panel','modal-books-panel','modal-worship-panel','modal-newseries-panel'].forEach(id=>document.getElementById(id).style.display='none');
         document.getElementById('modal-lectures-panel').style.display='none';
         document.getElementById('modal-episodes-panel').style.display='none';
         document.getElementById('modal-lessons-panel').style.display='none';
         document.getElementById('modal-worship-pages-panel').style.display='none';
         document.getElementById('modal-newseries-episodes-panel').style.display='none';
+        timeField.style.display='block';resetModalExpectedTimeField();
         return;
     }
     selectedModalCategory=c;selectedModalUnitId=null;selectedModalParentId=null;selectedModalUnitKind=null;
@@ -2660,6 +2918,7 @@ function selectModalChip(c){
     document.getElementById('modal-lessons-panel').style.display='none';
     document.getElementById('modal-worship-pages-panel').style.display='none';
     document.getElementById('modal-newseries-episodes-panel').style.display='none';
+    timeField.style.display='none';
     if(c==='study'){
         modalStudyTab='subjects';switchModalStudyTab('subjects');
     } else if(c==='book'){
@@ -2674,8 +2933,8 @@ function selectModalChip(c){
     } else if(c==='newseries'){
         document.getElementById('modal-newseries-panel').style.display='block';
         renderModalNewSeriesPool();
-    } else {
-        a.style.display='none';
+    } else if(c==='break'){
+        timeField.style.display='block';resetModalExpectedTimeField();
     }
 }
 let pendingWeekDayTarget=null; // {week,day} عند فتح النافذة من صفحة التخطيط
@@ -2768,6 +3027,7 @@ function submitAddNewTask(){
                 if(!title)title=`${b.name} — قراءة من صفحة ${pendingBookReadRange.from} إلى ${pendingBookReadRange.to}`;
                 subjectColor=b.color;unitKind='book-read';bookId=b.id;
                 fromPage=pendingBookReadRange.from;toPage=pendingBookReadRange.to;
+                expectedSeconds=pendingBookReadRange.expectedSeconds||0;
                 // تحديث فوري لآخر صفحة أُسندت (لضمان استمرارية الاقتراح الافتراضي عند إضافة مهام قراءة متتالية قبل إنجازها)
                 b.lastAssignedToPage=toPage;saveBooks();
             }
@@ -2785,6 +3045,7 @@ function submitAddNewTask(){
                 if(!title)title=`${w.name} — قراءة من صفحة ${pendingWorshipReadRange.from} إلى ${pendingWorshipReadRange.to}`;
                 subjectColor=w.color;unitKind='worship-read';worshipId=w.id;
                 fromPage=pendingWorshipReadRange.from;toPage=pendingWorshipReadRange.to;
+                expectedSeconds=pendingWorshipReadRange.expectedSeconds||0;
                 // تحديث فوري لآخر صفحة أُسندت (لضمان استمرارية الاقتراح الافتراضي عند إضافة مهام قراءة متتالية قبل إنجازها)
                 w.lastAssignedToPage=toPage;saveWorship();
             }
@@ -2792,9 +3053,15 @@ function submitAddNewTask(){
             const w=worshipDatabase.find(x=>x.id===selectedModalParentId);
             if(w){
                 if(!title)title=pendingWorshipSimpleCount?`${w.name} (${pendingWorshipSimpleCount})`:w.name;
-                subjectColor=w.color;unitKind='worship-simple';worshipId=w.id;
+                subjectColor=w.color;unitKind='worship-simple';worshipId=w.id;expectedSeconds=w.expectedSeconds||0;
             }
         }
+    }
+    // استراحة / بدون تصنيف: لا مصدر وقت مسبق من المكتبة — يُؤخذ الوقت المتوقع من الحقل اليدوي
+    if(selectedModalCategory==='break'||selectedModalCategory===null){
+        const h=parseInt(document.getElementById('modal-task-hours').value)||0;
+        const m=parseInt(document.getElementById('modal-task-minutes').value)||0;
+        expectedSeconds=(h*3600)+(m*60);
     }
     if(!title){showToast("الرجاء كتابة اسم المهمة أو اختيار عنصر");return;}
 
@@ -2826,7 +3093,7 @@ function submitAddNewTask(){
         stationTimeFixed:null
     };
     storedDailyTasks.push(newTask);
-    saveTasks();closeAddTaskModal();
+    saveTasks();syncStationToTodayPeriod(newTask.id);closeAddTaskModal();
     pendingWorshipReadRange=null;pendingWorshipSimpleCount=null;pendingBookReadRange=null;
     showToast("تم إدراج المهمة","var(--cat-study)");
     if(pendingWeekDayTarget){
@@ -3005,18 +3272,22 @@ function renderDailyTasks(){
     // بناء المحطات مع عرض الفراغ
     let stHtml='';
     const dk=currentActualDayKey;
-    const sl=fixedSleepDatabase[dk]||[],rl=routineDatabase[dk]||[];
+    const sl=fixedSleepDatabase[dk]||[],rl=routineDatabase[dk]||[],pl=getPrayerReservedSlots();
     stationKeys.forEach(sk=>{
         const times=getStationEffectiveTimes(sk);
         const tl=`${formatTime12(times.from)} — ${formatTime12(times.to)}`;
-        // حساب الفراغ في هذه الفترة
+        // حساب الفراغ في هذه الفترة — مع خصم وقت الصلاة (نصف ساعة من الأذان)
         let occ=0;
         if(times.from&&times.to){
             sl.forEach(s=>{if(s.from&&s.to)occ+=calcOverlap(times.from,times.to,s.from,s.to);});
             rl.forEach(s=>{if(!s.isSuspended&&s.from&&s.to)occ+=calcOverlap(times.from,times.to,s.from,s.to);});
+            pl.forEach(p=>{occ+=calcOverlap(times.from,times.to,p.from,p.to);});
         }
         const tot=times.from&&times.to?calcHDiff(times.from,times.to):0;
-        const fr=Math.max(0,tot-occ);
+        const periodTasks=(periodTasksDB[dk]&&periodTasksDB[dk][sk])?periodTasksDB[dk][sk]:[];
+        let tasksSeconds=0;
+        periodTasks.forEach(tid=>{const t=storedDailyTasks.find(x=>x.id===tid);if(t)tasksSeconds+=(t.expectedSeconds||0);});
+        const fr=Math.max(0,tot-occ-(tasksSeconds/3600));
         const freeBadge=fr>0?`<span style="font-size:9px;color:var(--status-done);background:rgba(16,172,132,0.12);border:1px solid rgba(16,172,132,0.3);border-radius:4px;padding:1px 5px;margin-right:4px;"><i class="fa-solid fa-circle" style="font-size:6px;"></i> فراغ ${fr>=1?fr.toFixed(1)+' س':(fr*60).toFixed(0)+' د'}</span>`:'';
         stHtml+=`<div class="time-station-block" data-station="${sk}">
             <div class="time-station-title">
@@ -3124,7 +3395,7 @@ function setupDragAndDropEngines(){
             const tid=e.dataTransfer.getData('text/plain');if(!tid)return;
             const t=storedDailyTasks.find(x=>x.id===tid);if(!t)return;
             if(z.id==='parking-lot-tasks-container')t.status='parking';
-            else{const sk=z.getAttribute('data-station');if(sk){t.station=sk;t.status='wait';t.progressCounted=false;}}
+            else{const sk=z.getAttribute('data-station');if(sk){t.station=sk;t.status='wait';t.progressCounted=false;syncStationToTodayPeriod(t.id);}}
             saveTasks();renderDailyTasks();
         });
     });
@@ -3164,7 +3435,7 @@ function togglePrayerStat(){
 
 function renderFreeTimeDetail(){
     const c=document.getElementById('free-time-periods-list');if(!c)return;
-    const dk=currentSelectedDay,sl=fixedSleepDatabase[dk]||[],rl=routineDatabase[dk]||[];
+    const dk=currentSelectedDay,sl=fixedSleepDatabase[dk]||[],rl=routineDatabase[dk]||[],pl=getPrayerReservedSlots();
     const periods=stationKeys.map(sk=>{
         const t=getStationEffectiveTimes(sk);
         return{name:stationLabelsArabic[sk],from:t.from,to:t.to,sk};
@@ -3172,11 +3443,15 @@ function renderFreeTimeDetail(){
     let html='<div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;"><i class="fa-solid fa-info-circle"></i> أوقات الفراغ الفعلية في كل فترة:</div>';
     periods.forEach(p=>{
         if(!p.from||!p.to)return;
-        // حساب الفراغ الصافي
+        // حساب الفراغ الصافي (نفس منطق باقي الصفحات بالضبط: تام - مشغول بالروتين/النوم/الصلاة - وقت المهام المُسندة لهذه الفترة)
         let occ=0;const tot=calcHDiff(p.from,p.to);
         sl.forEach(s=>{if(s.from&&s.to)occ+=calcOverlap(p.from,p.to,s.from,s.to);});
         rl.forEach(s=>{if(!s.isSuspended&&s.from&&s.to)occ+=calcOverlap(p.from,p.to,s.from,s.to);});
-        const fr=Math.max(0,tot-occ-0.5);
+        pl.forEach(pr=>{occ+=calcOverlap(p.from,p.to,pr.from,pr.to);});
+        const periodTasks=(periodTasksDB[dk]&&periodTasksDB[dk][p.sk])?periodTasksDB[dk][p.sk]:[];
+        let tasksSeconds=0;
+        periodTasks.forEach(tid=>{const t=storedDailyTasks.find(x=>x.id===tid);if(t)tasksSeconds+=(t.expectedSeconds||0);});
+        const fr=Math.max(0,tot-occ-(tasksSeconds/3600));
         const col=fr>=2?'var(--status-done)':fr>=1?'var(--status-work)':'var(--status-delay)';
         // حساب وقت الفراغ الفعلي (من-إلى)
         // نجمع كل الفترات المشغولة في هذا النطاق ونعرض ما تبقى
@@ -3195,18 +3470,43 @@ function renderFreeTimeDetail(){
     });
     c.innerHTML=html;
 }
-function calcOverlap(a1,a2,b1,b2){const tm=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};let x1=tm(a1),x2=tm(a2),y1=tm(b1),y2=tm(b2);if(y2<y1)y2+=1440;const s=Math.max(x1,y1),e=Math.min(x2,y2>1440?y2-1440:y2);return s<e?(e-s)/60:0;}
+function calcOverlap(a1,a2,b1,b2){
+    const tm=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
+    const x1=tm(a1),x2=tm(a2);
+    const y1=tm(b1),y2=tm(b2);
+    const simple=(s1,s2,e1,e2)=>{const s=Math.max(s1,e1),e=Math.min(s2,e2);return s<e?(e-s)/60:0;};
+    if(y2<y1){
+        // الفترة b (نوم/روتين/صلاة) تعبر منتصف الليل: نقسمها لجزأين (قبل الساعة 12 وبعدها) ونجمع التداخل مع كل جزء
+        return simple(x1,x2,y1,1440)+simple(x1,x2,0,y2);
+    }
+    return simple(x1,x2,y1,y2);
+}
 
 // ================================================================
 // الروتين - الصفحة الثانية
 // ================================================================
 function openSleepModal(){const sp=fixedSleepDatabase[currentSelectedDay]||[];document.getElementById('sleep-from-1').value=(sp[0]&&sp[0].from)||"23:00";document.getElementById('sleep-to-1').value=(sp[0]&&sp[0].to)||"04:30";document.getElementById('sleep-from-2').value=(sp[1]&&sp[1].from)||"14:00";document.getElementById('sleep-to-2').value=(sp[1]&&sp[1].to)||"15:30";document.getElementById('sleep-modal-picker').style.display='flex';}
 function closeSleepModal(){document.getElementById('sleep-modal-picker').style.display='none';}
-function saveFixedSleepSettings(){fixedSleepDatabase[currentSelectedDay]=[{from:document.getElementById('sleep-from-1').value,to:document.getElementById('sleep-to-1').value},{from:document.getElementById('sleep-from-2').value,to:document.getElementById('sleep-to-2').value}];localStorage.setItem('sleepFixedDB',JSON.stringify(fixedSleepDatabase));closeSleepModal();showToast("تم حفظ روتين النوم");renderCurrentDaySlots();if(freeTimeDetailOpen)renderFreeTimeDetail();}
+// إعادة احتساب فورية لوقت الفراغ بصفحتي "المهام اليومية" و"التخطيط" فور أي تعديل بالروتين أو النوم (تكامل شامل بلا انتظار تنقّل الشاشات)
+function refreshFreeTimeAcrossPages(){
+    renderDailyTasks();
+    renderHierarchicalTopDownSystem();
+}
+function saveFixedSleepSettings(){fixedSleepDatabase[currentSelectedDay]=[{from:document.getElementById('sleep-from-1').value,to:document.getElementById('sleep-to-1').value},{from:document.getElementById('sleep-from-2').value,to:document.getElementById('sleep-to-2').value}];localStorage.setItem('sleepFixedDB',JSON.stringify(fixedSleepDatabase));closeSleepModal();showToast("تم حفظ روتين النوم");renderCurrentDaySlots();if(freeTimeDetailOpen)renderFreeTimeDetail();refreshFreeTimeAcrossPages();}
 function selectDayGlobal(d){currentSelectedDay=d;document.querySelectorAll('.days-grid .day-chip').forEach(c=>c.classList.remove('active-day'));const ac=document.getElementById('routine-day-'+d);if(ac)ac.classList.add('active-day');renderCurrentDaySlots();}
 function addMinutesToTime(t,m){let[h,mm]=t.split(':').map(Number);h=h||0;mm=(mm||0)+m;h+=Math.floor(mm/60);mm=mm%60;h=h%24;return`${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;}
 function calcHDiff(f,t){const s=new Date("2000/01/01 "+f);let e=new Date("2000/01/01 "+t);if(e<=s)e.setDate(e.getDate()+1);return parseFloat(((e-s)/3600000).toFixed(2));}
-function calcPureFree(dk){let occ=2.5;(fixedSleepDatabase[dk]||[]).forEach(p=>{if(p.from&&p.to)occ+=calcHDiff(p.from,p.to);});(routineDatabase[dk]||[]).forEach(s=>{if(!s.isSuspended)occ+=s.hours;});return Math.max(0,24-occ);}
+function calcPureFree(dk){
+    let occ=2.5;
+    (fixedSleepDatabase[dk]||[]).forEach(p=>{if(p.from&&p.to)occ+=calcHDiff(p.from,p.to);});
+    (routineDatabase[dk]||[]).forEach(s=>{if(!s.isSuspended)occ+=s.hours;});
+    let tasksSeconds=0;
+    const dayPeriods=periodTasksDB[dk]||{};
+    Object.keys(dayPeriods).forEach(sk=>{
+        (dayPeriods[sk]||[]).forEach(tid=>{const t=storedDailyTasks.find(x=>x.id===tid);if(t)tasksSeconds+=(t.expectedSeconds||0);});
+    });
+    return Math.max(0,24-occ-(tasksSeconds/3600));
+}
 let selectedRoutineSubjectId=null;
 function toggleRoutineInlineForm(type){
     const f=document.getElementById('inline-routine-add-form');
@@ -3249,10 +3549,10 @@ function submitInlineRoutineSlot(){
     localStorage.setItem('routineDB',JSON.stringify(routineDatabase));
     document.getElementById('inline-routine-add-form').classList.remove('open');
     currentFormType=null;selectedRoutineSubjectId=null;
-    showToast("تم تثبيت الفترة");renderCurrentDaySlots();if(freeTimeDetailOpen)renderFreeTimeDetail();
+    showToast("تم تثبيت الفترة");renderCurrentDaySlots();if(freeTimeDetailOpen)renderFreeTimeDetail();refreshFreeTimeAcrossPages();
 }
-function toggleSlotSuspension(d,i){routineDatabase[d][i].isSuspended=!routineDatabase[d][i].isSuspended;localStorage.setItem('routineDB',JSON.stringify(routineDatabase));renderCurrentDaySlots();}
-function deleteSlot(i){routineDatabase[currentSelectedDay].splice(i,1);localStorage.setItem('routineDB',JSON.stringify(routineDatabase));renderCurrentDaySlots();if(freeTimeDetailOpen)renderFreeTimeDetail();}
+function toggleSlotSuspension(d,i){routineDatabase[d][i].isSuspended=!routineDatabase[d][i].isSuspended;localStorage.setItem('routineDB',JSON.stringify(routineDatabase));renderCurrentDaySlots();refreshFreeTimeAcrossPages();}
+function deleteSlot(i){routineDatabase[currentSelectedDay].splice(i,1);localStorage.setItem('routineDB',JSON.stringify(routineDatabase));renderCurrentDaySlots();if(freeTimeDetailOpen)renderFreeTimeDetail();refreshFreeTimeAcrossPages();}
 
 function renderCurrentDaySlots(){
     const c=document.getElementById('current-day-slots-list');if(!c)return;
@@ -3282,7 +3582,13 @@ function renderCurrentDaySlots(){
     const fr=Math.max(0,24-tocc);
     document.getElementById('stat-day-uni').innerText=tu.toFixed(1)+" س";
     document.getElementById('stat-day-sleep').innerText=ts.toFixed(1)+" س";
-    document.getElementById('stat-day-pure-free').innerText=fr.toFixed(1)+" ساعة صافية";
+    let dayTasksSeconds=0;
+    const dayPeriods=periodTasksDB[currentSelectedDay]||{};
+    Object.keys(dayPeriods).forEach(sk=>{
+        (dayPeriods[sk]||[]).forEach(tid=>{const t=storedDailyTasks.find(x=>x.id===tid);if(t)dayTasksSeconds+=(t.expectedSeconds||0);});
+    });
+    const frAfterTasks=Math.max(0,fr-(dayTasksSeconds/3600));
+    document.getElementById('stat-day-pure-free').innerText=frAfterTasks.toFixed(1)+" ساعة صافية";
     if(freeTimeDetailOpen)renderFreeTimeDetail();
     highlightCurrentDayInGrid();
 }
@@ -3545,16 +3851,17 @@ function dropOnDay(tid,dk){
     const g=hierarchicalGoalsDatabase.find(x=>x.id===tid);
     if(g&&g.targetContext===activePlanWeekContext){
         // توزيع الهدف مباشرة كمهمة يومية كاملة التفاصيل (بدون سؤال عن كمية - كل هدف وحدة مستقلة)
-        storedDailyTasks.push({
+        const newDayTask={
             id:'task-h-linked-'+Date.now(),title:g.text,category:g.category||'study',status:'wait',notes:'',
             totalSecondsSpent:0,station:'dhuhr',
             parentGoalId:g.id,targetWeek:activePlanWeekContext,targetDay:dk,
             subjectId:g.subjectId||null,subjectColor:g.subjectColor||null,
             linkedUnitId:g.linkedUnitId||null,progressCounted:false,expectedSeconds:g.expectedSeconds||0,
             unitKind:g.unitKind||null,worshipId:g.worshipId||null,bookId:g.bookId||null,fromPage:g.fromPage||null,toPage:g.toPage||null
-        });
+        };
+        storedDailyTasks.push(newDayTask);
         hierarchicalGoalsDatabase=hierarchicalGoalsDatabase.filter(x=>x.id!==g.id);
-        saveGoals();saveTasks();
+        saveGoals();saveTasks();syncStationToTodayPeriod(newDayTask.id);
         showToast(`تم توزيعها على يوم ${dayNamesArabic[dk]}`);
         renderHierarchicalTopDownSystem();renderDailyTasks();
         return;
@@ -4009,8 +4316,9 @@ function renderLibWorship(){
             }).join('');
         } else {
             typeLabel='';iconClass='fa-hand-holding-heart';
-            statLine=w.targetCount?`<span>الهدف اليومي: ${w.targetCount}</span>`:`<span style="color:var(--text-muted);">بدون عدد محدد</span>`;
-            pct=100; // لا يوجد تقدم تراكمي لهذا النوع
+            const doneBadge=(w.completionCount||0)>0?`<span style="color:var(--status-done);font-weight:bold;">أُنجزت ${w.completionCount} مرة</span>`:'';
+            statLine=(w.targetCount?`<span>الهدف اليومي: ${w.targetCount}</span>`:`<span style="color:var(--text-muted);">بدون عدد محدد</span>`)+(doneBadge?` ${doneBadge}`:'');
+            pct=100; // لا يوجد تقدم تراكمي لهذا النوع (شريط التقدم)
             unitsHtml=`<div style="padding:8px;">
                 <button class="lib-add-unit-btn" style="border-color:rgba(16,172,132,0.3);color:var(--cat-god);" onclick="addUnitTaskToDay('${w.id}',null,'worship-simple')"><i class="fa-solid fa-plus"></i> إضافة مهمة اليوم</button>
             </div>`;
@@ -4112,12 +4420,19 @@ function selectBookMode(mode){
     document.getElementById('book-mode-memorize').classList.toggle('selected',mode==='memorize');
     document.getElementById('book-unittype-field').style.display=(mode==='study')?'block':'none';
     document.getElementById('book-pages-field').style.display=(mode==='study')?'none':'block';
+    document.getElementById('book-page-time-field').style.display=(mode==='memorize')?'block':'none';
     const pagesLabel=document.getElementById('book-pages-label');
     if(pagesLabel)pagesLabel.innerText=(mode==='memorize')?'عدد الصفحات المراد حفظها (تُنشأ تلقائياً):':'إجمالي عدد الصفحات:';
 }
 function openAddBookModal(){
     document.getElementById('add-book-name').value='';
     document.getElementById('add-book-pages').value='200';
+    document.getElementById('add-book-page-hours').value='0';
+    document.getElementById('add-book-page-minutes').value='15';
+    document.getElementById('add-book-unit-count').value='10';
+    document.getElementById('add-book-unit-hours').value='0';
+    document.getElementById('add-book-unit-minutes').value='30';
+    pickCustomSelectOption('add-book-unit-type','درس');
     currentBookMode='study';
     selectBookMode('study');
     uploadedBookIconData=null;
@@ -4150,14 +4465,25 @@ function submitAddBook(){
         booksDatabase.push({id:'book-'+Date.now(),name,mode:'reading',color:selectedBookColor,iconImage:uploadedBookIconData,totalPages:pages,pagesReadCount:0,lastAssignedToPage:0});
     } else if(currentBookMode==='memorize'){
         const pageCount=Math.max(1,parseInt(document.getElementById('add-book-pages').value)||1);
+        const ph=parseInt(document.getElementById('add-book-page-hours').value)||0;
+        const pm=parseInt(document.getElementById('add-book-page-minutes').value)||0;
+        const pageExpectedSeconds=(ph*3600)+(pm*60);
         const pages=[];
         for(let i=1;i<=pageCount;i++){
-            pages.push({id:'bpage-'+Date.now()+'-'+i,name:`صفحة ${i}`,timesCompleted:0,totalSecondsSpent:0,expectedSeconds:0,masteryPercent:0});
+            pages.push({id:'bpage-'+Date.now()+'-'+i,name:`صفحة ${i}`,timesCompleted:0,totalSecondsSpent:0,expectedSeconds:pageExpectedSeconds,masteryPercent:0});
         }
         booksDatabase.push({id:'book-'+Date.now(),name,mode:'memorize',color:selectedBookColor,iconImage:uploadedBookIconData,totalPages:pageCount,pages});
     } else {
         const unitType=document.getElementById('add-book-unit-type').value;
-        booksDatabase.push({id:'book-'+Date.now(),name,mode:'study',unitType,color:selectedBookColor,iconImage:uploadedBookIconData,lessons:[]});
+        const count=Math.max(1,Math.min(500,parseInt(document.getElementById('add-book-unit-count').value)||1));
+        const uh=parseInt(document.getElementById('add-book-unit-hours').value)||0;
+        const um=parseInt(document.getElementById('add-book-unit-minutes').value)||0;
+        const unitExpectedSeconds=(uh*3600)+(um*60);
+        const lessons=[];
+        for(let i=1;i<=count;i++){
+            lessons.push({id:'unit-'+Date.now()+'-'+i,name:`${unitType} ${i}`,masteryPercent:0,completed:false,expectedSeconds:unitExpectedSeconds});
+        }
+        booksDatabase.push({id:'book-'+Date.now(),name,mode:'study',unitType,color:selectedBookColor,iconImage:uploadedBookIconData,lessons});
     }
     saveBooks();closeAddBookModal();renderLibrary();showToast('تمت إضافة الكتاب 📖');
 }
@@ -4166,6 +4492,9 @@ function submitAddBook(){
 function openAddSeriesModal(){
     document.getElementById('add-series-name').value='';
     document.getElementById('add-series-count').value='30';
+    document.getElementById('add-series-hours').value='0';
+    document.getElementById('add-series-minutes').value='30';
+    pickCustomSelectOption('add-series-unit-type','حلقة');
     refreshSeriesColorSwatches();
     pendingSeriesIcon=null;
     document.getElementById('add-series-icon-preview').style.display='none';
@@ -4193,9 +4522,12 @@ function submitAddSeries(){
     if(!name){showToast('الرجاء كتابة اسم السلسلة');return;}
     const unitType=document.getElementById('add-series-unit-type').value;
     const count=Math.max(1,Math.min(500,parseInt(document.getElementById('add-series-count').value)||1));
+    const sh=parseInt(document.getElementById('add-series-hours').value)||0;
+    const sm=parseInt(document.getElementById('add-series-minutes').value)||0;
+    const episodeExpectedSeconds=(sh*3600)+(sm*60);
     const episodes=[];
     for(let i=1;i<=count;i++){
-        episodes.push({id:'ep-'+Date.now()+'-'+i,name:`${unitType} ${i}`,masteryPercent:0,completed:false});
+        episodes.push({id:'ep-'+Date.now()+'-'+i,name:`${unitType} ${i}`,masteryPercent:0,completed:false,expectedSeconds:episodeExpectedSeconds});
     }
     seriesDatabase.push({id:'series-'+Date.now(),name,unitType,color:selectedSeriesColor,iconImage:pendingSeriesIcon,episodes});
     saveSeries();closeAddSeriesModal();renderLibrary();showToast(`تم إنشاء السلسلة بـ ${count} ${unitType} 🎬`,'var(--cat-series)');
@@ -4206,6 +4538,9 @@ function submitAddSeries(){
 function openAddNewSeriesModal(){
     document.getElementById('add-newseries-name').value='';
     document.getElementById('add-newseries-count').value='30';
+    document.getElementById('add-newseries-hours').value='0';
+    document.getElementById('add-newseries-minutes').value='30';
+    pickCustomSelectOption('add-newseries-unit-type','حلقة');
     refreshNewSeriesColorSwatches();
     pendingNewSeriesIcon=null;
     document.getElementById('add-newseries-icon-preview').style.display='none';
@@ -4233,9 +4568,12 @@ function submitAddNewSeries(){
     if(!name){showToast('الرجاء كتابة اسم السلسلة');return;}
     const unitType=document.getElementById('add-newseries-unit-type').value;
     const count=Math.max(1,Math.min(500,parseInt(document.getElementById('add-newseries-count').value)||1));
+    const nh=parseInt(document.getElementById('add-newseries-hours').value)||0;
+    const nm=parseInt(document.getElementById('add-newseries-minutes').value)||0;
+    const episodeExpectedSeconds=(nh*3600)+(nm*60);
     const episodes=[];
     for(let i=1;i<=count;i++){
-        episodes.push({id:'newep-'+Date.now()+'-'+i,name:`${unitType} ${i}`,masteryPercent:0,completed:false});
+        episodes.push({id:'newep-'+Date.now()+'-'+i,name:`${unitType} ${i}`,masteryPercent:0,completed:false,expectedSeconds:episodeExpectedSeconds});
     }
     newSeriesDatabase.push({id:'newseries-'+Date.now(),name,unitType,color:selectedNewSeriesColor,iconImage:pendingNewSeriesIcon,episodes});
     saveNewSeries();closeAddNewSeriesModal();renderLibrary();showToast(`تم إنشاء السلسلة بـ ${count} ${unitType} 🎬`,'var(--cat-newseries)');
@@ -4255,8 +4593,8 @@ function openBulkAddUnitsModal(parentId,type){
     document.getElementById('bulk-add-units-title').innerHTML=`<i class="fa-solid fa-layer-group"></i> إضافة ${label} بالجملة`;
     document.getElementById('bulk-add-units-count').value='10';
     document.getElementById('bulk-add-units-prefix').value=defaultPrefix;
-    // حقل الوقت المتوقع لكل وحدة: يظهر فقط لحلقات فقه النفس والسلاسل الترفيهية، وليس للكتب
-    const showTime=(type==='series'||type==='newseries');
+    // حقل الوقت المتوقع لكل وحدة: يظهر لحلقات فقه النفس والسلاسل الترفيهية، وأيضاً لدروس الكتب (وضع دراسة)
+    const showTime=(type==='series'||type==='newseries'||type==='book');
     const timeRow=document.getElementById('bulk-add-units-time-row');
     const timeLabel=document.getElementById('bulk-add-units-time-label');
     if(timeRow)timeRow.style.display=showTime?'flex':'none';
@@ -4280,7 +4618,7 @@ function submitBulkAddUnits(){
         const b=booksDatabase.find(x=>x.id===parentId);if(!b)return;
         if(!b.lessons)b.lessons=[];
         const startNum=b.lessons.length+1;
-        for(let i=0;i<count;i++){b.lessons.push({id:'unit-'+Date.now()+'-'+i,name:`${prefix} ${startNum+i}`,masteryPercent:0,completed:false});}
+        for(let i=0;i<count;i++){b.lessons.push({id:'unit-'+Date.now()+'-'+i,name:`${prefix} ${startNum+i}`,masteryPercent:0,completed:false,expectedSeconds:bulkExpectedSeconds});}
         saveBooks();toastColor='var(--cat-book)';
     } else if(type==='series'){
         const s=seriesDatabase.find(x=>x.id===parentId);if(!s)return;
@@ -4318,6 +4656,8 @@ function openAddWorshipModal(){
     document.getElementById('add-worship-page-hours').value='0';
     document.getElementById('add-worship-page-minutes').value='15';
     document.getElementById('add-worship-target').value='';
+    document.getElementById('add-worship-simple-hours').value='0';
+    document.getElementById('add-worship-simple-minutes').value='15';
     currentWorshipType='memorize';
     selectWorshipType('memorize');
     refreshWorshipColorSwatches();
@@ -4360,9 +4700,71 @@ function submitAddWorship(){
         worshipDatabase.push({id:'worship-'+Date.now(),name,type:'memorize',color:selectedWorshipColor,iconImage:pendingWorshipIcon,pages});
     } else {
         const target=parseInt(document.getElementById('add-worship-target').value)||null;
-        worshipDatabase.push({id:'worship-'+Date.now(),name,type:'simple',color:selectedWorshipColor,iconImage:pendingWorshipIcon,targetCount:target});
+        const sh=parseInt(document.getElementById('add-worship-simple-hours').value)||0;
+        const sm=parseInt(document.getElementById('add-worship-simple-minutes').value)||0;
+        const simpleExpectedSeconds=(sh*3600)+(sm*60);
+        worshipDatabase.push({id:'worship-'+Date.now(),name,type:'simple',color:selectedWorshipColor,iconImage:pendingWorshipIcon,targetCount:target,expectedSeconds:simpleExpectedSeconds,completionCount:0});
     }
     saveWorship();closeAddWorshipModal();renderLibrary();showToast('تمت الإضافة 🕌','var(--cat-god)');
+}
+
+// ---- نافذة نطاق الصفحات السريعة (تستبدل prompt() الافتراضية) — مشتركة بين العبادات والكتب ----
+let pendingQuickRangeSource=null; // {type:'worship'|'book', id}
+function openQuickPageRangeModal(type,id,remaining,fromDefault,total){
+    pendingQuickRangeSource={type,id};
+    document.getElementById('quick-page-range-remaining').innerText=`المتبقي: ${remaining} صفحة`;
+    document.getElementById('quick-page-range-from').value=fromDefault;
+    document.getElementById('quick-page-range-from').max=total;
+    document.getElementById('quick-page-range-to').value=Math.min(fromDefault+19,total);
+    document.getElementById('quick-page-range-to').max=total;
+    document.getElementById('quick-page-range-hours').value='0';
+    document.getElementById('quick-page-range-minutes').value='20';
+    document.getElementById('quick-page-range-modal').style.display='flex';
+}
+function closeQuickPageRangeModal(){document.getElementById('quick-page-range-modal').style.display='none';pendingQuickRangeSource=null;}
+function submitQuickPageRangeTask(){
+    if(!pendingQuickRangeSource)return;
+    const from=parseInt(document.getElementById('quick-page-range-from').value);
+    if(isNaN(from)||from<1){showToast('الرجاء إدخال رقم صحيح لصفحة البداية');return;}
+    const to=parseInt(document.getElementById('quick-page-range-to').value);
+    if(isNaN(to)||to<from){showToast('صفحة النهاية يجب أن تكون أكبر أو تساوي صفحة البداية');return;}
+    const qh=parseInt(document.getElementById('quick-page-range-hours').value)||0;
+    const qm=parseInt(document.getElementById('quick-page-range-minutes').value)||0;
+    const qExpectedSeconds=(qh*3600)+(qm*60);
+    const{type,id}=pendingQuickRangeSource;
+    if(type==='worship'){
+        const w=worshipDatabase.find(x=>x.id===id);if(!w){closeQuickPageRangeModal();return;}
+        const qt={
+            id:'task-worship-'+Date.now(),
+            title:`${w.name} — قراءة من صفحة ${from} إلى ${to}`,
+            category:'god',status:'wait',notes:'',
+            totalSecondsSpent:0,station:'fajr',
+            parentGoalId:null,targetWeek:null,targetDay:null,
+            subjectId:null,subjectColor:w.color,
+            linkedUnitId:null,progressCounted:false,expectedSeconds:qExpectedSeconds,
+            unitKind:'worship-read',worshipId:w.id,fromPage:from,toPage:to
+        };
+        storedDailyTasks.push(qt);
+        w.lastAssignedToPage=to;saveWorship();
+        saveTasks();syncStationToTodayPeriod(qt.id);closeQuickPageRangeModal();showToast('تمت الإضافة لقائمة المهام ✅','var(--cat-god)');
+        switchScreen('tasks');
+    } else if(type==='book'){
+        const b=booksDatabase.find(x=>x.id===id);if(!b){closeQuickPageRangeModal();return;}
+        const qt={
+            id:'task-book-'+Date.now(),
+            title:`${b.name} — قراءة من صفحة ${from} إلى ${to}`,
+            category:'book',status:'wait',notes:'',
+            totalSecondsSpent:0,station:'dhuhr',
+            parentGoalId:null,targetWeek:null,targetDay:null,
+            subjectId:null,subjectColor:b.color,
+            linkedUnitId:null,progressCounted:false,expectedSeconds:qExpectedSeconds,
+            unitKind:'book-read',bookId:b.id,fromPage:from,toPage:to
+        };
+        storedDailyTasks.push(qt);
+        b.lastAssignedToPage=to;saveBooks();
+        saveTasks();syncStationToTodayPeriod(qt.id);closeQuickPageRangeModal();showToast('تمت الإضافة لقائمة المهام ✅','var(--cat-study)');
+        switchScreen('tasks');
+    }
 }
 
 // ---- إضافة مهمة قراءة عبادة (من صفحة - إلى صفحة) ----
@@ -4371,25 +4773,7 @@ function addWorshipReadingTaskToDay(worshipId){
     const remaining=Math.max(0,(w.totalPages||0)-(w.pagesReadCount||0));
     if(remaining<=0){showToast('تم الانتهاء من كل الصفحات! 🎉','var(--status-done)');return;}
     const fromDefault=(w.lastAssignedToPage||w.pagesReadCount||0)+1;
-    const fromStr=prompt(`من صفحة (المتبقي ${remaining} صفحة):`,fromDefault);
-    if(!fromStr)return;
-    const from=parseInt(fromStr);if(isNaN(from)||from<1)return;
-    const toStr=prompt('إلى صفحة:',Math.min(from+19,(w.totalPages||from)));
-    if(!toStr)return;
-    const to=parseInt(toStr);if(isNaN(to)||to<from)return;
-    storedDailyTasks.push({
-        id:'task-worship-'+Date.now(),
-        title:`${w.name} — قراءة من صفحة ${from} إلى ${to}`,
-        category:'god',status:'wait',notes:'',
-        totalSecondsSpent:0,station:'fajr',
-        parentGoalId:null,targetWeek:null,targetDay:null,
-        subjectId:null,subjectColor:w.color,
-        linkedUnitId:null,progressCounted:false,
-        unitKind:'worship-read',worshipId:w.id,fromPage:from,toPage:to
-    });
-    w.lastAssignedToPage=to;saveWorship();
-    saveTasks();showToast('تمت الإضافة لقائمة المهام ✅','var(--cat-god)');
-    switchScreen('tasks');
+    openQuickPageRangeModal('worship',worshipId,remaining,fromDefault,w.totalPages||fromDefault);
 }
 
 // ---- إضافة مهمة قراءة كتاب (من صفحة - إلى صفحة) — بنفس منطق قراءة العبادات ----
@@ -4398,25 +4782,7 @@ function addBookReadingTaskToDay(bookId){
     const remaining=Math.max(0,(b.totalPages||0)-(b.pagesReadCount||0));
     if(remaining<=0){showToast('تم الانتهاء من كل الصفحات! 🎉','var(--status-done)');return;}
     const fromDefault=(b.lastAssignedToPage||b.pagesReadCount||0)+1;
-    const fromStr=prompt(`من صفحة (المتبقي ${remaining} صفحة):`,fromDefault);
-    if(!fromStr)return;
-    const from=parseInt(fromStr);if(isNaN(from)||from<1)return;
-    const toStr=prompt('إلى صفحة:',Math.min(from+19,(b.totalPages||from)));
-    if(!toStr)return;
-    const to=parseInt(toStr);if(isNaN(to)||to<from)return;
-    storedDailyTasks.push({
-        id:'task-book-'+Date.now(),
-        title:`${b.name} — قراءة من صفحة ${from} إلى ${to}`,
-        category:'book',status:'wait',notes:'',
-        totalSecondsSpent:0,station:'dhuhr',
-        parentGoalId:null,targetWeek:null,targetDay:null,
-        subjectId:null,subjectColor:b.color,
-        linkedUnitId:null,progressCounted:false,
-        unitKind:'book-read',bookId:b.id,fromPage:from,toPage:to
-    });
-    b.lastAssignedToPage=to;saveBooks();
-    saveTasks();showToast('تمت الإضافة لقائمة المهام ✅','var(--cat-study)');
-    switchScreen('tasks');
+    openQuickPageRangeModal('book',bookId,remaining,fromDefault,b.totalPages||fromDefault);
 }
 
 // ---- إضافة مهمة من الصفحة الرابعة مباشرة لقائمة المهام اليومية (كل الأنواع) ----
@@ -4461,7 +4827,7 @@ function addUnitTaskToDay(parentId,unitId,type){
         parent=worshipDatabase.find(x=>x.id===parentId);
         if(!parent){showToast('لم يتم العثور على العبادة');return;}
         title=parent.targetCount?`${parent.name} (${parent.targetCount})`:parent.name;
-        category='god';subjectColor=parent.color;unitKind='worship-simple';worshipId=parent.id;
+        category='god';subjectColor=parent.color;unitKind='worship-simple';worshipId=parent.id;expSec=parent.expectedSeconds||0;
     } else {
         parent=subjectsDatabase.find(x=>x.id===parentId);
         unit=parent&&parent.lectures.find(l=>l.id===unitId);
@@ -4470,7 +4836,7 @@ function addUnitTaskToDay(parentId,unitId,type){
         title=`${parent.name} — محاضرة ${idx}: ${unit.name}`;
         category='study';subjectColor=parent.color;subjectId=parentId;expSec=unit.expectedSeconds||0;unitKind='subject';
     }
-    storedDailyTasks.push({
+    const newLibTask={
         id:'task-lib-'+Date.now(),title,category,status:'wait',notes:'',
         totalSecondsSpent:(unit&&unit.totalSecondsSpent)||0,
         station:'dhuhr',
@@ -4479,8 +4845,9 @@ function addUnitTaskToDay(parentId,unitId,type){
         linkedUnitId:(type==='book'||type==='series'||type==='newseries'||type==='worship-simple')?null:unitId,
         progressCounted:false,expectedSeconds:expSec,
         unitKind,worshipId
-    });
-    saveTasks();
+    };
+    storedDailyTasks.push(newLibTask);
+    saveTasks();syncStationToTodayPeriod(newLibTask.id);
     showToast(`تمت الإضافة لقائمة المهام ✅`,'var(--cat-study)');
     switchScreen('tasks');
 }
@@ -4809,23 +5176,27 @@ function deleteLongpressTarget(){
         return;
     }
     if(kind==='parent'){
-        if(!confirm('حذف هذا العنصر وكل ما بداخله نهائياً؟'))return;
-        if(dbType==='subject')subjectsDatabase=subjectsDatabase.filter(x=>x.id!==parentId);
-        else if(dbType==='book')booksDatabase=booksDatabase.filter(x=>x.id!==parentId);
-        else if(dbType==='series')seriesDatabase=seriesDatabase.filter(x=>x.id!==parentId);
-        else if(dbType==='newseries')newSeriesDatabase=newSeriesDatabase.filter(x=>x.id!==parentId);
-        else if(dbType==='worship')worshipDatabase=worshipDatabase.filter(x=>x.id!==parentId);
+        showCustomConfirm('حذف هذا العنصر وكل ما بداخله نهائياً؟',()=>{
+            if(dbType==='subject')subjectsDatabase=subjectsDatabase.filter(x=>x.id!==parentId);
+            else if(dbType==='book')booksDatabase=booksDatabase.filter(x=>x.id!==parentId);
+            else if(dbType==='series')seriesDatabase=seriesDatabase.filter(x=>x.id!==parentId);
+            else if(dbType==='newseries')newSeriesDatabase=newSeriesDatabase.filter(x=>x.id!==parentId);
+            else if(dbType==='worship')worshipDatabase=worshipDatabase.filter(x=>x.id!==parentId);
+            persistLibChange(dbType);
+            closeLibLongpressModal();renderLibrary();showToast('تم الحذف');
+        });
     } else {
-        if(!confirm('حذف هذه الوحدة؟'))return;
-        if(dbType==='subject'){const s=subjectsDatabase.find(x=>x.id===parentId);if(s)s.lectures=s.lectures.filter(l=>l.id!==unitId);}
-        else if(dbType==='book'){const b=booksDatabase.find(x=>x.id===parentId);if(b)b.lessons=b.lessons.filter(l=>l.id!==unitId);}
-        else if(dbType==='series'){const s=seriesDatabase.find(x=>x.id===parentId);if(s)s.episodes=s.episodes.filter(l=>l.id!==unitId);}
-        else if(dbType==='newseries'){const s=newSeriesDatabase.find(x=>x.id===parentId);if(s)s.episodes=s.episodes.filter(l=>l.id!==unitId);}
-        else if(dbType==='worship-memorize'){const w=worshipDatabase.find(x=>x.id===parentId);if(w&&w.pages)w.pages=w.pages.filter(l=>l.id!==unitId);}
-        else if(dbType==='book-memorize'){const b=booksDatabase.find(x=>x.id===parentId);if(b&&b.pages)b.pages=b.pages.filter(l=>l.id!==unitId);}
+        showCustomConfirm('حذف هذه الوحدة؟',()=>{
+            if(dbType==='subject'){const s=subjectsDatabase.find(x=>x.id===parentId);if(s)s.lectures=s.lectures.filter(l=>l.id!==unitId);}
+            else if(dbType==='book'){const b=booksDatabase.find(x=>x.id===parentId);if(b)b.lessons=b.lessons.filter(l=>l.id!==unitId);}
+            else if(dbType==='series'){const s=seriesDatabase.find(x=>x.id===parentId);if(s)s.episodes=s.episodes.filter(l=>l.id!==unitId);}
+            else if(dbType==='newseries'){const s=newSeriesDatabase.find(x=>x.id===parentId);if(s)s.episodes=s.episodes.filter(l=>l.id!==unitId);}
+            else if(dbType==='worship-memorize'){const w=worshipDatabase.find(x=>x.id===parentId);if(w&&w.pages)w.pages=w.pages.filter(l=>l.id!==unitId);}
+            else if(dbType==='book-memorize'){const b=booksDatabase.find(x=>x.id===parentId);if(b&&b.pages)b.pages=b.pages.filter(l=>l.id!==unitId);}
+            persistLibChange(dbType);
+            closeLibLongpressModal();renderLibrary();showToast('تم الحذف');
+        });
     }
-    persistLibChange(dbType);
-    closeLibLongpressModal();renderLibrary();showToast('تم الحذف');
 }
 function persistLibChange(dbType){
     if(dbType==='subject')saveSubjects();
