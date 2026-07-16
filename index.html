@@ -169,6 +169,20 @@
         .custom-select-option { padding:10px 14px; font-size:13px; cursor:pointer; text-align:right; color:var(--text-color); }
         .custom-select-option:hover { background:rgba(255,255,255,0.06); }
         .custom-select-option.selected { color:var(--accent-color); font-weight:bold; }
+        /* نافذة اختيار الوقت المخصصة (بديل عن input type=time الافتراضي) */
+        .time-display-trigger { display:flex; justify-content:space-between; align-items:center; width:100%; padding:7px; background:var(--bg-color); color:#fff; border:1px solid #262636; border-radius:7px; font-size:13px; cursor:pointer; box-sizing:border-box; }
+        .time-display-trigger i { color:var(--text-muted); font-size:12px; }
+        .tp-stepper-col { display:flex; flex-direction:column; align-items:center; gap:6px; }
+        .tp-stepper-btn { width:38px; height:38px; border-radius:10px; background:var(--bg-color); border:1px solid #262636; color:var(--accent-color); font-size:16px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .tp-stepper-btn:active { background:rgba(255,255,255,0.08); }
+        .tp-digit-display { font-size:26px; font-weight:bold; color:#fff; min-width:52px; text-align:center; padding:6px 0; }
+        .tp-ampm-btn { flex:1; padding:10px; border-radius:8px; border:1px solid #262636; background:var(--bg-color); color:var(--text-muted); font-size:13px; cursor:pointer; text-align:center; }
+        .tp-ampm-btn.selected { background:var(--accent-color); color:#fff; border-color:var(--accent-color); }
+        /* أزرار اختيار الوقت المتوقع السريعة */
+        .quick-time-pills { display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+        .quick-time-pill { flex:1; min-width:60px; padding:7px 4px; border-radius:8px; border:1px solid #262636; background:var(--bg-color); color:var(--text-muted); font-size:11px; text-align:center; cursor:pointer; }
+        .quick-time-pill:active { background:rgba(255,255,255,0.08); }
+        .quick-time-pill.selected { background:var(--accent-color); color:#fff; border-color:var(--accent-color); }
         .color-swatch { width: 30px; height: 30px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s; }
         .color-swatch.selected { border-color: #fff; transform: scale(1.2); }
         .color-swatch.used { opacity: 0.55; position: relative; }
@@ -449,6 +463,13 @@
             </div>
         </div>
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع الإجمالي:</label>
+        <div class="quick-time-pills">
+            <div class="quick-time-pill clickable" onclick="setQuickTime('worship-read-edit-hours','worship-read-edit-minutes',120,this)">ساعتان</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('worship-read-edit-hours','worship-read-edit-minutes',90,this)">ساعة ونصف</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('worship-read-edit-hours','worship-read-edit-minutes',60,this)">ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('worship-read-edit-hours','worship-read-edit-minutes',30,this)">نصف ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('worship-read-edit-hours','worship-read-edit-minutes',15,this)">ربع ساعة</div>
+        </div>
         <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
             <input type="number" id="worship-read-edit-hours" min="0" max="10" style="width:56px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;box-sizing:border-box;">
             <span style="color:var(--text-muted);font-size:11px;">ساعة</span>
@@ -564,10 +585,10 @@
 <!-- نافذة تأكيد موحّدة (تستبدل نوافذ confirm() الافتراضية بالمتصفح) -->
 <div id="custom-confirm-modal" class="custom-modal-overlay" style="z-index:100010;">
     <div class="custom-modal-content" style="text-align:center;">
-        <div style="font-size:28px;margin-bottom:10px;color:var(--status-delay);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div id="custom-confirm-icon" style="font-size:28px;margin-bottom:10px;color:var(--status-delay);"><i class="fa-solid fa-triangle-exclamation"></i></div>
         <div id="custom-confirm-message" style="font-size:13px;color:var(--text-color);margin-bottom:18px;line-height:1.7;">هل أنت متأكد؟</div>
         <div style="display:flex;gap:8px;">
-            <button class="btn-prime clickable" style="background:var(--status-delay);" onclick="acceptCustomConfirm()"><i class="fa-solid fa-trash"></i> تأكيد الحذف</button>
+            <button class="btn-prime clickable" id="custom-confirm-accept-btn" style="background:var(--status-delay);" onclick="acceptCustomConfirm()"><i class="fa-solid fa-trash"></i> تأكيد الحذف</button>
             <button class="btn-prime clickable" style="background:#262636;color:white;" onclick="closeCustomConfirm()">إلغاء</button>
         </div>
     </div>
@@ -589,6 +610,13 @@
             </div>
         </div>
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">الوقت المتوقع لقراءة هذه الصفحات (تقديرك الشخصي):</div>
+        <div class="quick-time-pills">
+            <div class="quick-time-pill clickable" onclick="setQuickTime('quick-page-range-hours','quick-page-range-minutes',120,this)">ساعتان</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('quick-page-range-hours','quick-page-range-minutes',90,this)">ساعة ونصف</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('quick-page-range-hours','quick-page-range-minutes',60,this)">ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('quick-page-range-hours','quick-page-range-minutes',30,this)">نصف ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('quick-page-range-hours','quick-page-range-minutes',15,this)">ربع ساعة</div>
+        </div>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;">
             <input type="number" id="quick-page-range-hours" value="0" min="0" max="10" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;outline:none;">
             <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
@@ -598,6 +626,34 @@
         <div style="display:flex;gap:8px;">
             <button class="btn-prime clickable" style="background:var(--cat-god);" onclick="submitQuickPageRangeTask()">إضافة</button>
             <button class="btn-prime clickable" style="background:#262636;color:white;" onclick="closeQuickPageRangeModal()">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة اختيار الوقت المخصصة (بديل عن input type=time الافتراضي بالمتصفح) -->
+<div id="custom-time-picker-modal" class="custom-modal-overlay" style="z-index:100010;">
+    <div class="custom-modal-content" style="text-align:center;">
+        <h3 style="margin:0 0 16px 0;color:var(--accent-color);font-size:15px;"><i class="fa-solid fa-clock"></i> تحديد الوقت</h3>
+        <div style="display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:18px;">
+            <div class="tp-stepper-col">
+                <div class="tp-stepper-btn clickable" onclick="tpAdjustHour(1)"><i class="fa-solid fa-chevron-up"></i></div>
+                <div class="tp-digit-display" id="tp-hour-display">08</div>
+                <div class="tp-stepper-btn clickable" onclick="tpAdjustHour(-1)"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div style="font-size:26px;font-weight:bold;color:#fff;">:</div>
+            <div class="tp-stepper-col">
+                <div class="tp-stepper-btn clickable" onclick="tpAdjustMinute(5)"><i class="fa-solid fa-chevron-up"></i></div>
+                <div class="tp-digit-display" id="tp-minute-display">00</div>
+                <div class="tp-stepper-btn clickable" onclick="tpAdjustMinute(-5)"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:18px;">
+            <div class="tp-ampm-btn clickable selected" id="tp-ampm-am" onclick="tpSetAmPm('AM')">صباحاً</div>
+            <div class="tp-ampm-btn clickable" id="tp-ampm-pm" onclick="tpSetAmPm('PM')">مساءً</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn-prime clickable" onclick="confirmCustomTimePicker()">تأكيد</button>
+            <button class="btn-prime clickable" style="background:#262636;color:white;" onclick="closeCustomTimePicker()">إلغاء</button>
         </div>
     </div>
 </div>
@@ -733,16 +789,41 @@
         </div>
         <div style="margin-bottom:12px;text-align:right;">
             <label style="font-size:11px;color:var(--text-muted);">المحطة الزمنية:</label>
-            <select id="input-modal-station" style="width:100%;padding:10px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:8px;margin-top:4px;">
-                <option value="fajr">بعد الفجر</option><option value="morning">فترة الصباح</option>
-                <option value="dhuhr">بعد الظهر</option><option value="asr">بعد العصر</option>
-                <option value="maghrib">بعد المغرب</option><option value="isha">بعد العشاء</option>
-            </select>
+            <div class="custom-select-wrap" style="margin-top:4px;margin-bottom:0;">
+                <div class="custom-select-trigger" id="csel-input-modal-station-trigger" onclick="openStationPickerModal()">
+                    <span id="csel-input-modal-station-label">فترة الصباح</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="custom-select-options" id="csel-input-modal-station-options" style="display:none;">
+                    <div class="custom-select-option" data-key="input-modal-station" data-value="fajr" onclick="pickCustomSelectOption('input-modal-station','fajr','بعد الفجر')">بعد الفجر</div>
+                    <div class="custom-select-option selected" data-key="input-modal-station" data-value="morning" onclick="pickCustomSelectOption('input-modal-station','morning','فترة الصباح')">فترة الصباح</div>
+                    <div class="custom-select-option" data-key="input-modal-station" data-value="dhuhr" onclick="pickCustomSelectOption('input-modal-station','dhuhr','بعد الظهر')">بعد الظهر</div>
+                    <div class="custom-select-option" data-key="input-modal-station" data-value="asr" onclick="pickCustomSelectOption('input-modal-station','asr','بعد العصر')">بعد العصر</div>
+                    <div class="custom-select-option" data-key="input-modal-station" data-value="maghrib" onclick="pickCustomSelectOption('input-modal-station','maghrib','بعد المغرب')">بعد المغرب</div>
+                    <div class="custom-select-option" data-key="input-modal-station" data-value="isha" onclick="pickCustomSelectOption('input-modal-station','isha','بعد العشاء')">بعد العشاء</div>
+                </div>
+                <input type="hidden" id="input-modal-station" value="morning">
+            </div>
         </div>
         <div style="display:flex;gap:10px;">
             <button class="btn-prime clickable" style="flex:2;" onclick="submitAddNewTask()">حفظ وإدراج</button>
             <button class="btn-prime clickable" style="flex:1;background:#262636;color:white;" onclick="closeAddTaskModal()">إلغاء</button>
         </div>
+    </div>
+</div>
+
+<div id="station-picker-modal" class="custom-modal-overlay" style="z-index:100010;">
+    <div class="custom-modal-content">
+        <h3 style="margin:0 0 14px 0;color:var(--accent-color);font-size:15px;text-align:right;"><i class="fa-solid fa-clock"></i> اختر المحطة الزمنية</h3>
+        <div id="station-picker-options-list">
+            <div class="custom-select-option" data-station-value="fajr" onclick="pickStationOption('fajr','بعد الفجر')">بعد الفجر</div>
+            <div class="custom-select-option" data-station-value="morning" onclick="pickStationOption('morning','فترة الصباح')">فترة الصباح</div>
+            <div class="custom-select-option" data-station-value="dhuhr" onclick="pickStationOption('dhuhr','بعد الظهر')">بعد الظهر</div>
+            <div class="custom-select-option" data-station-value="asr" onclick="pickStationOption('asr','بعد العصر')">بعد العصر</div>
+            <div class="custom-select-option" data-station-value="maghrib" onclick="pickStationOption('maghrib','بعد المغرب')">بعد المغرب</div>
+            <div class="custom-select-option" data-station-value="isha" onclick="pickStationOption('isha','بعد العشاء')">بعد العشاء</div>
+        </div>
+        <button class="btn-prime clickable" style="background:#262636;color:white;margin-top:14px;width:100%;" onclick="closeStationPickerModal()">إلغاء</button>
     </div>
 </div>
 
@@ -752,8 +833,14 @@
         <h3 style="margin:0 0 12px 0;color:var(--accent-color);font-size:14px;"><i class="fa-solid fa-clock"></i> تحديد وقت الفترة</h3>
         <p id="station-time-picker-label" style="font-size:12px;color:var(--text-muted);margin-bottom:10px;"></p>
         <div style="display:flex;gap:8px;margin-bottom:14px;">
-            <div style="flex:1;"><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">من:</label><input type="time" id="station-tp-from" style="width:100%;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:7px;"></div>
-            <div style="flex:1;"><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">إلى:</label><input type="time" id="station-tp-to" style="width:100%;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:7px;"></div>
+            <div style="flex:1;"><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">من:</label>
+                <div class="time-display-trigger" onclick="openCustomTimePicker('station-tp-from')"><span id="disp-station-tp-from">--:--</span><i class="fa-solid fa-clock"></i></div>
+                <input type="hidden" id="station-tp-from">
+            </div>
+            <div style="flex:1;"><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">إلى:</label>
+                <div class="time-display-trigger" onclick="openCustomTimePicker('station-tp-to')"><span id="disp-station-tp-to">--:--</span><i class="fa-solid fa-clock"></i></div>
+                <input type="hidden" id="station-tp-to">
+            </div>
         </div>
         <div style="display:flex;gap:8px;">
             <button class="btn-prime clickable" onclick="saveStationTime()">حفظ</button>
@@ -852,15 +939,27 @@
             <div>
                 <label style="font-size:12px;color:var(--text-muted);">النوم الرئيسي (الليل) - من / إلى:</label>
                 <div style="display:flex;gap:6px;margin-top:4px;">
-                    <input type="time" id="sleep-from-1" style="padding:6px;background:var(--bg-color);color:white;border:1px solid #262636;border-radius:6px;flex:1;">
-                    <input type="time" id="sleep-to-1" style="padding:6px;background:var(--bg-color);color:white;border:1px solid #262636;border-radius:6px;flex:1;">
+                    <div style="flex:1;">
+                        <div class="time-display-trigger" onclick="openCustomTimePicker('sleep-from-1')"><span id="disp-sleep-from-1">--:--</span><i class="fa-solid fa-clock"></i></div>
+                        <input type="hidden" id="sleep-from-1">
+                    </div>
+                    <div style="flex:1;">
+                        <div class="time-display-trigger" onclick="openCustomTimePicker('sleep-to-1')"><span id="disp-sleep-to-1">--:--</span><i class="fa-solid fa-clock"></i></div>
+                        <input type="hidden" id="sleep-to-1">
+                    </div>
                 </div>
             </div>
             <div>
                 <label style="font-size:12px;color:var(--text-muted);">القيلولة / الراحة النهارية - من / إلى:</label>
                 <div style="display:flex;gap:6px;margin-top:4px;">
-                    <input type="time" id="sleep-from-2" style="padding:6px;background:var(--bg-color);color:white;border:1px solid #262636;border-radius:6px;flex:1;">
-                    <input type="time" id="sleep-to-2" style="padding:6px;background:var(--bg-color);color:white;border:1px solid #262636;border-radius:6px;flex:1;">
+                    <div style="flex:1;">
+                        <div class="time-display-trigger" onclick="openCustomTimePicker('sleep-from-2')"><span id="disp-sleep-from-2">--:--</span><i class="fa-solid fa-clock"></i></div>
+                        <input type="hidden" id="sleep-from-2">
+                    </div>
+                    <div style="flex:1;">
+                        <div class="time-display-trigger" onclick="openCustomTimePicker('sleep-to-2')"><span id="disp-sleep-to-2">--:--</span><i class="fa-solid fa-clock"></i></div>
+                        <input type="hidden" id="sleep-to-2">
+                    </div>
                 </div>
             </div>
         </div>
@@ -906,6 +1005,9 @@
             <button class="chip-choice clickable" onclick="toggleRoutineInlineForm('عمل')" style="flex:1;text-align:center;">+ فترة عمل</button>
             <button class="chip-choice clickable" onclick="openSleepModal()" style="flex:1;text-align:center;">+ نوم</button>
         </div>
+        <button id="btn-toggle-notifications" class="btn-prime clickable" onclick="toggleAppNotifications()" style="margin-top:10px;background:var(--card-bg);border:1px solid var(--accent-color);color:var(--accent-color);">
+            <i class="fa-solid fa-bell"></i> <span id="notif-toggle-label">تفعيل إشعارات التطبيق</span>
+        </button>
         <div id="inline-routine-add-form" class="expandable-input-container" style="margin-top:8px;background:rgba(0,0,0,0.2);border-radius:10px;">
             <div style="padding:10px;">
                 <!-- اختيار المادة (يظهر فقط عند إضافة محاضرة جامعة) -->
@@ -914,8 +1016,14 @@
                     <div id="routine-subject-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
                 </div>
                 <div style="display:flex;gap:8px;">
-                    <div style="flex:1;"><label style="font-size:11px;color:var(--text-muted);">وقت البدء:</label><input type="time" id="inline-slot-from" style="width:100%;padding:6px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;margin-top:4px;"></div>
-                    <div style="flex:1;"><label style="font-size:11px;color:var(--text-muted);">وقت الانتهاء:</label><input type="time" id="inline-slot-to" style="width:100%;padding:6px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;margin-top:4px;"></div>
+                    <div style="flex:1;"><label style="font-size:11px;color:var(--text-muted);">وقت البدء:</label>
+                        <div class="time-display-trigger" style="margin-top:4px;" onclick="openCustomTimePicker('inline-slot-from')"><span id="disp-inline-slot-from">--:--</span><i class="fa-solid fa-clock"></i></div>
+                        <input type="hidden" id="inline-slot-from">
+                    </div>
+                    <div style="flex:1;"><label style="font-size:11px;color:var(--text-muted);">وقت الانتهاء:</label>
+                        <div class="time-display-trigger" style="margin-top:4px;" onclick="openCustomTimePicker('inline-slot-to')"><span id="disp-inline-slot-to">--:--</span><i class="fa-solid fa-clock"></i></div>
+                        <input type="hidden" id="inline-slot-to">
+                    </div>
                 </div>
                 <button class="btn-prime clickable" style="margin-top:10px;padding:8px;" onclick="submitInlineRoutineSlot()">تثبيت في الشبكة الأسبوعية</button>
             </div>
@@ -1073,6 +1181,13 @@
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">بادئة الاسم:</label>
         <input type="text" id="bulk-add-units-prefix" placeholder="مثال: درس" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:14px;text-align:right;font-family:inherit;box-sizing:border-box;">
         <label id="bulk-add-units-time-label" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل حلقة:</label>
+        <div id="bulk-add-units-time-row-pills" class="quick-time-pills">
+            <div class="quick-time-pill clickable" onclick="setQuickTime('bulk-add-units-hours','bulk-add-units-minutes',120,this)">ساعتان</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('bulk-add-units-hours','bulk-add-units-minutes',90,this)">ساعة ونصف</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('bulk-add-units-hours','bulk-add-units-minutes',60,this)">ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('bulk-add-units-hours','bulk-add-units-minutes',30,this)">نصف ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('bulk-add-units-hours','bulk-add-units-minutes',15,this)">ربع ساعة</div>
+        </div>
         <div id="bulk-add-units-time-row" style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
             <input type="number" id="bulk-add-units-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
             <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
@@ -1095,6 +1210,13 @@
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">توليد محاضرات بالجملة الآن (اختياري — اتركه 0 لإضافتها لاحقاً واحدة تلو الأخرى):</div>
         <input type="number" id="add-subject-lecture-count" min="0" max="500" value="0" placeholder="عدد المحاضرات (0 = لا شيء الآن)" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:center;">
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل محاضرة:</label>
+        <div class="quick-time-pills">
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-subject-lecture-hours','add-subject-lecture-minutes',120,this)">ساعتان</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-subject-lecture-hours','add-subject-lecture-minutes',90,this)">ساعة ونصف</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-subject-lecture-hours','add-subject-lecture-minutes',60,this)">ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-subject-lecture-hours','add-subject-lecture-minutes',30,this)">نصف ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-subject-lecture-hours','add-subject-lecture-minutes',15,this)">ربع ساعة</div>
+        </div>
         <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
             <input type="number" id="add-subject-lecture-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
             <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
@@ -1167,6 +1289,13 @@
             <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">عدد الوحدات (تُولَّد تلقائياً عند الإنشاء):</label>
             <input type="number" id="add-book-unit-count" min="1" max="500" value="10" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:center;">
             <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل وحدة:</label>
+            <div class="quick-time-pills">
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-book-unit-hours','add-book-unit-minutes',120,this)">ساعتان</div>
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-book-unit-hours','add-book-unit-minutes',90,this)">ساعة ونصف</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-book-unit-hours','add-book-unit-minutes',60,this)">ساعة</div>
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-book-unit-hours','add-book-unit-minutes',30,this)">نصف ساعة</div>
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-book-unit-hours','add-book-unit-minutes',15,this)">ربع ساعة</div>
+            </div>
             <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
                 <input type="number" id="add-book-unit-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
                 <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
@@ -1180,6 +1309,13 @@
         </div>
         <div id="book-page-time-field" style="display:none;">
             <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل صفحة:</label>
+            <div class="quick-time-pills">
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-book-page-hours','add-book-page-minutes',120,this)">ساعتان</div>
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-book-page-hours','add-book-page-minutes',90,this)">ساعة ونصف</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-book-page-hours','add-book-page-minutes',60,this)">ساعة</div>
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-book-page-hours','add-book-page-minutes',30,this)">نصف ساعة</div>
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-book-page-hours','add-book-page-minutes',15,this)">ربع ساعة</div>
+            </div>
             <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
                 <input type="number" id="add-book-page-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
                 <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
@@ -1235,6 +1371,13 @@
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">عدد الحلقات (يتم توليدها تلقائياً):</label>
         <input type="number" id="add-series-count" min="1" max="500" value="30" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:center;">
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل حلقة:</label>
+        <div class="quick-time-pills">
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-series-hours','add-series-minutes',120,this)">ساعتان</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-series-hours','add-series-minutes',90,this)">ساعة ونصف</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-series-hours','add-series-minutes',60,this)">ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-series-hours','add-series-minutes',30,this)">نصف ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-series-hours','add-series-minutes',15,this)">ربع ساعة</div>
+        </div>
         <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
             <input type="number" id="add-series-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
             <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
@@ -1286,6 +1429,13 @@
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">عدد الحلقات (يتم توليدها تلقائياً):</label>
         <input type="number" id="add-newseries-count" min="1" max="500" value="30" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:10px;text-align:center;">
         <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل حلقة:</label>
+        <div class="quick-time-pills">
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-newseries-hours','add-newseries-minutes',120,this)">ساعتان</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-newseries-hours','add-newseries-minutes',90,this)">ساعة ونصف</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-newseries-hours','add-newseries-minutes',60,this)">ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-newseries-hours','add-newseries-minutes',30,this)">نصف ساعة</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-newseries-hours','add-newseries-minutes',15,this)">ربع ساعة</div>
+        </div>
         <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
             <input type="number" id="add-newseries-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
             <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
@@ -1330,6 +1480,13 @@
             <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">عدد الصفحات:</label>
             <input type="number" id="add-worship-pages" min="1" max="700" value="20" style="width:100%;padding:10px;background:var(--bg-color);color:var(--text-color);border:1px solid #262636;border-radius:8px;font-size:13px;outline:none;margin-bottom:14px;text-align:center;">
             <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">الوقت المتوقع لكل صفحة:</label>
+            <div class="quick-time-pills">
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-worship-page-hours','add-worship-page-minutes',120,this)">ساعتان</div>
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-worship-page-hours','add-worship-page-minutes',90,this)">ساعة ونصف</div>
+            <div class="quick-time-pill clickable" onclick="setQuickTime('add-worship-page-hours','add-worship-page-minutes',60,this)">ساعة</div>
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-worship-page-hours','add-worship-page-minutes',30,this)">نصف ساعة</div>
+                <div class="quick-time-pill clickable" onclick="setQuickTime('add-worship-page-hours','add-worship-page-minutes',15,this)">ربع ساعة</div>
+            </div>
             <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
                 <input type="number" id="add-worship-page-hours" min="0" max="10" value="0" style="width:60px;padding:8px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;font-size:14px;text-align:center;outline:none;">
                 <span style="color:var(--text-muted);font-size:12px;">ساعة</span>
@@ -1659,7 +1816,62 @@ function getStationTimeLabel(sk){
     const def=stationDefaultTimes[sk];
     return def?`${formatTime12(def.from)} — ${formatTime12(def.to)}`:'اضغط لتحديد الوقت';
 }
-// ---- قائمة منسدلة مخصصة بثيم التطبيق (بديل عن select المتصفح) — key = نفس id الحقل المخفي الحامل للقيمة الفعلية ----
+// ---- أزرار اختيار الوقت المتوقع السريعة (ربع ساعة/نصف ساعة/ساعة/ساعة ونصف/ساعتان) ----
+function setQuickTime(hoursId,minutesId,totalMinutes,el){
+    const hEl=document.getElementById(hoursId),mEl=document.getElementById(minutesId);
+    hEl.value=Math.floor(totalMinutes/60);
+    mEl.value=totalMinutes%60;
+    // إطلاق حدث input حقيقي كي تعمل أي معالجات oninput مرتبطة بالحقلين (مثل تحديث نطاق قراءة معلّق)
+    hEl.dispatchEvent(new Event('input',{bubbles:true}));
+    mEl.dispatchEvent(new Event('input',{bubbles:true}));
+    if(el){
+        const row=el.closest('.quick-time-pills');
+        if(row)row.querySelectorAll('.quick-time-pill').forEach(p=>p.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+}
+function quickTimePillsHtml(hoursId,minutesId){
+    return`<div class="quick-time-pills">
+        <div class="quick-time-pill clickable" onclick="setQuickTime('${hoursId}','${minutesId}',120,this)">ساعتان</div>
+        <div class="quick-time-pill clickable" onclick="setQuickTime('${hoursId}','${minutesId}',90,this)">ساعة ونصف</div>
+        <div class="quick-time-pill clickable" onclick="setQuickTime('${hoursId}','${minutesId}',60,this)">ساعة</div>
+        <div class="quick-time-pill clickable" onclick="setQuickTime('${hoursId}','${minutesId}',30,this)">نصف ساعة</div>
+        <div class="quick-time-pill clickable" onclick="setQuickTime('${hoursId}','${minutesId}',15,this)">ربع ساعة</div>
+    </div>`;
+}
+let _tpTarget=null,_tpHour=8,_tpMinute=0,_tpAmPm='AM';
+function renderTimePickerUI(){
+    document.getElementById('tp-hour-display').innerText=String(_tpHour).padStart(2,'0');
+    document.getElementById('tp-minute-display').innerText=String(_tpMinute).padStart(2,'0');
+    document.getElementById('tp-ampm-am').classList.toggle('selected',_tpAmPm==='AM');
+    document.getElementById('tp-ampm-pm').classList.toggle('selected',_tpAmPm==='PM');
+}
+function tpAdjustHour(delta){_tpHour+=delta;if(_tpHour>12)_tpHour=1;if(_tpHour<1)_tpHour=12;renderTimePickerUI();}
+function tpAdjustMinute(delta){_tpMinute+=delta;if(_tpMinute>=60)_tpMinute=0;if(_tpMinute<0)_tpMinute=55;renderTimePickerUI();}
+function tpSetAmPm(v){_tpAmPm=v;renderTimePickerUI();}
+function openCustomTimePicker(targetId){
+    _tpTarget=targetId;
+    const cur=(document.getElementById(targetId).value)||'08:00';
+    const parts=cur.split(':');
+    let hh=parseInt(parts[0])||8,mm=parseInt(parts[1])||0;
+    _tpAmPm=hh>=12?'PM':'AM';
+    _tpHour=hh%12;if(_tpHour===0)_tpHour=12;
+    _tpMinute=mm;
+    renderTimePickerUI();
+    document.getElementById('custom-time-picker-modal').style.display='flex';
+}
+function closeCustomTimePicker(){document.getElementById('custom-time-picker-modal').style.display='none';_tpTarget=null;}
+function confirmCustomTimePicker(){
+    if(!_tpTarget)return;
+    let h24=_tpHour%12;
+    if(_tpAmPm==='PM')h24+=12;
+    const val=`${String(h24).padStart(2,'0')}:${String(_tpMinute).padStart(2,'0')}`;
+    const input=document.getElementById(_tpTarget);
+    if(input)input.value=val;
+    const disp=document.getElementById('disp-'+_tpTarget);
+    if(disp)disp.innerText=formatTime12(val);
+    closeCustomTimePicker();
+}
 function toggleCustomSelect(key){
     const opts=document.getElementById('csel-'+key+'-options');if(!opts)return;
     const isOpen=opts.style.display==='block';
@@ -1667,12 +1879,23 @@ function toggleCustomSelect(key){
     document.querySelectorAll('.custom-select-trigger').forEach(t=>t.classList.remove('open'));
     if(!isOpen){opts.style.display='block';const tr=document.getElementById('csel-'+key+'-trigger');if(tr)tr.classList.add('open');}
 }
-function pickCustomSelectOption(key,value){
+function pickCustomSelectOption(key,value,label){
     const hidden=document.getElementById(key);if(hidden)hidden.value=value;
-    const lbl=document.getElementById('csel-'+key+'-label');if(lbl)lbl.innerText=value;
+    const lbl=document.getElementById('csel-'+key+'-label');if(lbl)lbl.innerText=label||value;
     const opts=document.getElementById('csel-'+key+'-options');if(opts)opts.style.display='none';
     const tr=document.getElementById('csel-'+key+'-trigger');if(tr)tr.classList.remove('open');
     document.querySelectorAll(`.custom-select-option[data-key="${key}"]`).forEach(o=>o.classList.toggle('selected',o.getAttribute('data-value')===value));
+}
+function openStationPickerModal(){
+    document.querySelectorAll('#station-picker-options-list .custom-select-option').forEach(o=>{
+        o.classList.toggle('selected',o.getAttribute('data-station-value')===document.getElementById('input-modal-station').value);
+    });
+    document.getElementById('station-picker-modal').style.display='flex';
+}
+function closeStationPickerModal(){document.getElementById('station-picker-modal').style.display='none';}
+function pickStationOption(value,label){
+    pickCustomSelectOption('input-modal-station',value,label);
+    closeStationPickerModal();
 }
 document.addEventListener('click',function(e){
     if(!e.target.closest('.custom-select-wrap')){
@@ -1736,7 +1959,7 @@ function stopAutoScroll(){
 // السحب باللمس (تمرير + إفلات صحيح)
 // ================================================================
 function addTouchDrag(card,getTaskId,onDropCb){
-    let active=false,startX=0,startY=0,ghost=null,curZone=null,pressTimer=null,cancelled=false;
+    let active=false,startX=0,startY=0,ghost=null,curZone=null,curInsertBeforeId=null,pressTimer=null,cancelled=false;
     const LONGPRESS_DRAG_MS=420; // ضغطة معتدلة: ليست سريعة خاطفة ولا طويلة جداً
     const MOVE_CANCEL_THRESHOLD=12; // إذا تحرك الإصبع أكثر من هذا قبل انتهاء المؤقت، يُعتبر سكرول ويُلغى السحب
 
@@ -1779,6 +2002,18 @@ function addTouchDrag(card,getTaskId,onDropCb){
             curZone=z;
             if(z){z.classList.add(z.classList.contains('day-period-drop-zone')?'drag-over-period':'drag-over');}
         }
+        // تحديد أقرب بطاقة لحساب موضع الإدراج (لدعم إعادة الترتيب صعوداً/نزولاً داخل نفس المحطة فقط)
+        if(z&&z.classList.contains('station-tasks-drop-zone')){
+            const draggedId=getTaskId();
+            const siblings=[...z.querySelectorAll('[id^="task-dom-"]')].filter(el=>el.id!=='task-dom-'+draggedId);
+            curInsertBeforeId=null;
+            for(const s of siblings){
+                const r=s.getBoundingClientRect();
+                if(cy<r.top+r.height/2){curInsertBeforeId=s.id.replace('task-dom-','');break;}
+            }
+        } else {
+            curInsertBeforeId=null;
+        }
     },{passive:false});
     card.addEventListener('touchend',e=>{
         clearTimeout(pressTimer);
@@ -1790,8 +2025,8 @@ function addTouchDrag(card,getTaskId,onDropCb){
         stopAutoScroll();
         if(curZone){
             curZone.classList.remove('drag-over','drag-over-period');
-            if(onDropCb)onDropCb(getTaskId(),curZone);
-            else dispatchTouchDrop(getTaskId(),curZone);
+            if(onDropCb)onDropCb(getTaskId(),curZone,curInsertBeforeId);
+            else dispatchTouchDrop(getTaskId(),curZone,curInsertBeforeId);
             curZone=null;
         }
     },{passive:true});
@@ -1802,7 +2037,7 @@ function addTouchDrag(card,getTaskId,onDropCb){
     },{passive:true});
 }
 
-function dispatchTouchDrop(taskId,zone){
+function dispatchTouchDrop(taskId,zone,insertBeforeId){
     if(!taskId||!zone)return;
     if(zone.id==='parking-lot-tasks-container'){
         const t=storedDailyTasks.find(x=>x.id===taskId);
@@ -1813,7 +2048,21 @@ function dispatchTouchDrop(taskId,zone){
     } else if(zone.classList.contains('station-tasks-drop-zone')){
         const sk=zone.getAttribute('data-station');
         const t=storedDailyTasks.find(x=>x.id===taskId);
-        if(t&&sk){t.station=sk;t.status='wait';t.progressCounted=false;saveTasks();syncStationToTodayPeriod(t.id);renderDailyTasks();}
+        if(t&&sk){
+            const sameStation=(t.station===sk&&t.status==='wait');
+            t.station=sk;t.status='wait';t.progressCounted=false;
+            // إعادة ترتيب فعلية لموضع المهمة بمصفوفة المهام حسب مكان الإفلات (يدعم صعود/نزول داخل نفس المحطة)
+            const fromIdx=storedDailyTasks.findIndex(x=>x.id===taskId);
+            if(fromIdx>-1){
+                storedDailyTasks.splice(fromIdx,1);
+                let toIdx=insertBeforeId?storedDailyTasks.findIndex(x=>x.id===insertBeforeId):-1;
+                if(toIdx===-1)toIdx=storedDailyTasks.length; // لا يوجد عنصر بعده = يُدرج بالنهاية
+                storedDailyTasks.splice(toIdx,0,t);
+            }
+            saveTasks();
+            if(!sameStation)syncStationToTodayPeriod(t.id);
+            renderDailyTasks();
+        }
     } else if(zone.classList.contains('day-period-drop-zone')){
         const dk=zone.getAttribute('data-day');const pk=zone.getAttribute('data-period');
         if(dk&&pk)dropTaskOnPeriod(taskId,dk,pk);
@@ -2189,7 +2438,7 @@ function toggleGoalEditInner(){document.getElementById('goal-edit-inner').classL
 function syncStationToTodayPeriod(taskId){
     const t=storedDailyTasks.find(x=>x.id===taskId);
     if(!t||!t.station||!stationKeys.includes(t.station))return;
-    const dk=currentActualDayKey;
+    const dk=t.targetDay||currentActualDayKey;
     Object.keys(periodTasksDB).forEach(odk=>{
         Object.keys(periodTasksDB[odk]||{}).forEach(osk=>{
             if(periodTasksDB[odk][osk]&&periodTasksDB[odk][osk].includes(taskId)&&!(odk===dk&&osk===t.station)){
@@ -2591,7 +2840,6 @@ function openAddSubjectModal(){
     document.getElementById('add-subject-icon-preview').style.display='none';
     document.getElementById('add-subject-icon-input').value='';
     document.getElementById('add-subject-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('input-subject-name-emoji').focus(),150);
 }
 function closeAddSubjectModal(){document.getElementById('add-subject-modal').style.display='none';}
 function submitAddNewSubjectToBank(){
@@ -2621,8 +2869,13 @@ function submitAddNewSubjectToBank(){
 }
 // ---- نافذة تأكيد مخصصة موحّدة (تستبدل confirm() الافتراضية) ----
 let _pendingConfirmCallback=null;
-function showCustomConfirm(message,onConfirm){
+function showCustomConfirm(message,onConfirm,opts){
     document.getElementById('custom-confirm-message').innerText=message;
+    const btn=document.getElementById('custom-confirm-accept-btn');
+    const icon=document.getElementById('custom-confirm-icon');
+    if(opts&&opts.acceptLabel){btn.innerHTML=opts.acceptLabel;btn.style.background=opts.acceptColor||'var(--accent-color)';}
+    else{btn.innerHTML='<i class="fa-solid fa-trash"></i> تأكيد الحذف';btn.style.background='var(--status-delay)';}
+    if(icon){icon.style.color=(opts&&opts.acceptColor)||'var(--status-delay)';}
     _pendingConfirmCallback=onConfirm;
     document.getElementById('custom-confirm-modal').style.display='flex';
 }
@@ -2762,6 +3015,7 @@ function selectBookForTask(bookId){
                 <input type="number" id="book-read-to" value="${toDefault}" min="1" max="${b.totalPages}" style="flex:1;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingBookRange('${b.id}')">
             </div>
             <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">الوقت المتوقع لقراءة هذه الصفحات (تقديرك الشخصي):</div>
+            ${quickTimePillsHtml('book-read-hours','book-read-minutes')}
             <div style="display:flex;gap:8px;align-items:center;">
                 <input type="number" id="book-read-hours" value="0" min="0" max="10" style="width:56px;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingBookRange('${b.id}')">
                 <span style="color:var(--text-muted);font-size:11px;">ساعة</span>
@@ -2838,6 +3092,7 @@ function selectWorshipForTask(worshipId){
                 <input type="number" id="worship-read-to" value="${toDefault}" min="1" max="${w.totalPages}" style="flex:1;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingWorshipRange('${w.id}')">
             </div>
             <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">الوقت المتوقع لقراءة هذه الصفحات (تقديرك الشخصي):</div>
+            ${quickTimePillsHtml('worship-read-hours','worship-read-minutes')}
             <div style="display:flex;gap:8px;align-items:center;">
                 <input type="number" id="worship-read-hours" value="0" min="0" max="10" style="width:56px;padding:7px;background:var(--bg-color);color:#fff;border:1px solid #262636;border-radius:6px;text-align:center;" oninput="updatePendingWorshipRange('${w.id}')">
                 <span style="color:var(--text-muted);font-size:11px;">ساعة</span>
@@ -2873,7 +3128,7 @@ function selectUnitForTask(unitId,el){
     const parentEl=el&&el.parentElement;
     if(parentEl)Array.from(parentEl.children).forEach(d=>{d.style.borderColor='#262636';d.style.background='rgba(0,0,0,0.2)';});
     if(el){el.style.borderColor='var(--accent-color)';el.style.background='rgba(187,134,252,0.08)';}
-    document.getElementById('input-modal-station').value='morning';
+    pickCustomSelectOption('input-modal-station','morning','فترة الصباح');
 }
 
 function resetModalExpectedTimeField(){
@@ -2944,7 +3199,6 @@ function openAddTaskModal(){
     selectedModalSubjectId=null;selectedModalUnitId=null;selectedModalParentId=null;selectedModalUnitKind=null;modalStudyTab='subjects';
     selectedModalCategory=null;selectModalChip('study');
     document.getElementById('add-task-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('input-modal-task-title').focus(),100);
 }
 function closeAddTaskModal(){document.getElementById('add-task-modal').style.display='none';pendingWeekDayTarget=null;}
 // فتح نافذة إضافة مهمة مباشرة ليوم محدد ضمن أسبوع معيّن (من صفحة التخطيط)
@@ -2954,7 +3208,6 @@ function openAddTaskToWeekDayModal(week,day){
     selectedModalSubjectId=null;selectedModalUnitId=null;selectedModalParentId=null;selectedModalUnitKind=null;modalStudyTab='subjects';
     selectedModalCategory=null;selectModalChip('study');
     document.getElementById('add-task-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('input-modal-task-title').focus(),100);
 }
 // فتح نافذة إضافة هدف لصندوق الأسبوع (بدون تخصيص يوم بعد) - زر + في أعلى صندوق أهداف الأسبوع
 function openAddGoalToWeekModal(){
@@ -2963,12 +3216,11 @@ function openAddGoalToWeekModal(){
     selectedModalSubjectId=null;selectedModalUnitId=null;selectedModalParentId=null;selectedModalUnitKind=null;modalStudyTab='subjects';
     selectedModalCategory=null;selectModalChip('study');
     document.getElementById('add-task-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('input-modal-task-title').focus(),100);
 }
 
 // Time Picker
 let stationLongPressTimer=null;
-function openStationTimePicker(sk){currentStationPickerKey=sk;document.getElementById('station-time-picker-label').innerText=`الفترة: ${stationLabelsArabic[sk]}`;const ex=stationTimesDB[sk]||stationDefaultTimes[sk]||{};document.getElementById('station-tp-from').value=ex.from||'';document.getElementById('station-tp-to').value=ex.to||'';document.getElementById('station-time-picker-overlay').style.display='flex';}
+function openStationTimePicker(sk){currentStationPickerKey=sk;document.getElementById('station-time-picker-label').innerText=`الفترة: ${stationLabelsArabic[sk]}`;const ex=stationTimesDB[sk]||stationDefaultTimes[sk]||{};document.getElementById('station-tp-from').value=ex.from||'';document.getElementById('disp-station-tp-from').innerText=ex.from?formatTime12(ex.from):'--:--';document.getElementById('station-tp-to').value=ex.to||'';document.getElementById('disp-station-tp-to').innerText=ex.to?formatTime12(ex.to):'--:--';document.getElementById('station-time-picker-overlay').style.display='flex';}
 function closeStationTimePicker(){document.getElementById('station-time-picker-overlay').style.display='none';currentStationPickerKey=null;}
 function saveStationTime(){if(!currentStationPickerKey)return;stationTimesDB[currentStationPickerKey]={from:document.getElementById('station-tp-from').value,to:document.getElementById('station-tp-to').value};localStorage.setItem('stationTimesDB',JSON.stringify(stationTimesDB));closeStationTimePicker();showToast(`تم تحديد الوقت`);renderDailyTasks();}
 function startStationLongPress(sk,e){e.preventDefault();stationLongPressTimer=setTimeout(()=>openStationTimePicker(sk),600);}
@@ -3395,7 +3647,28 @@ function setupDragAndDropEngines(){
             const tid=e.dataTransfer.getData('text/plain');if(!tid)return;
             const t=storedDailyTasks.find(x=>x.id===tid);if(!t)return;
             if(z.id==='parking-lot-tasks-container')t.status='parking';
-            else{const sk=z.getAttribute('data-station');if(sk){t.station=sk;t.status='wait';t.progressCounted=false;syncStationToTodayPeriod(t.id);}}
+            else{
+                const sk=z.getAttribute('data-station');
+                if(sk){
+                    const sameStation=(t.station===sk&&t.status==='wait');
+                    t.station=sk;t.status='wait';t.progressCounted=false;
+                    // تحديد موضع الإدراج من إحداثي y (نفس منطق اللمس، لدعم إعادة الترتيب بالفأرة أيضاً)
+                    const siblings=[...z.querySelectorAll('[id^="task-dom-"]')].filter(el=>el.id!=='task-dom-'+tid);
+                    let insertBeforeId=null;
+                    for(const s of siblings){
+                        const r=s.getBoundingClientRect();
+                        if(e.clientY<r.top+r.height/2){insertBeforeId=s.id.replace('task-dom-','');break;}
+                    }
+                    const fromIdx=storedDailyTasks.findIndex(x=>x.id===tid);
+                    if(fromIdx>-1){
+                        storedDailyTasks.splice(fromIdx,1);
+                        let toIdx=insertBeforeId?storedDailyTasks.findIndex(x=>x.id===insertBeforeId):-1;
+                        if(toIdx===-1)toIdx=storedDailyTasks.length;
+                        storedDailyTasks.splice(toIdx,0,t);
+                    }
+                    if(!sameStation)syncStationToTodayPeriod(t.id);
+                }
+            }
             saveTasks();renderDailyTasks();
         });
     });
@@ -3485,7 +3758,15 @@ function calcOverlap(a1,a2,b1,b2){
 // ================================================================
 // الروتين - الصفحة الثانية
 // ================================================================
-function openSleepModal(){const sp=fixedSleepDatabase[currentSelectedDay]||[];document.getElementById('sleep-from-1').value=(sp[0]&&sp[0].from)||"23:00";document.getElementById('sleep-to-1').value=(sp[0]&&sp[0].to)||"04:30";document.getElementById('sleep-from-2').value=(sp[1]&&sp[1].from)||"14:00";document.getElementById('sleep-to-2').value=(sp[1]&&sp[1].to)||"15:30";document.getElementById('sleep-modal-picker').style.display='flex';}
+function openSleepModal(){
+    const sp=fixedSleepDatabase[currentSelectedDay]||[];
+    const f1=(sp[0]&&sp[0].from)||"23:00",t1=(sp[0]&&sp[0].to)||"04:30",f2=(sp[1]&&sp[1].from)||"14:00",t2=(sp[1]&&sp[1].to)||"15:30";
+    document.getElementById('sleep-from-1').value=f1;document.getElementById('disp-sleep-from-1').innerText=formatTime12(f1);
+    document.getElementById('sleep-to-1').value=t1;document.getElementById('disp-sleep-to-1').innerText=formatTime12(t1);
+    document.getElementById('sleep-from-2').value=f2;document.getElementById('disp-sleep-from-2').innerText=formatTime12(f2);
+    document.getElementById('sleep-to-2').value=t2;document.getElementById('disp-sleep-to-2').innerText=formatTime12(t2);
+    document.getElementById('sleep-modal-picker').style.display='flex';
+}
 function closeSleepModal(){document.getElementById('sleep-modal-picker').style.display='none';}
 // إعادة احتساب فورية لوقت الفراغ بصفحتي "المهام اليومية" و"التخطيط" فور أي تعديل بالروتين أو النوم (تكامل شامل بلا انتظار تنقّل الشاشات)
 function refreshFreeTimeAcrossPages(){
@@ -3527,7 +3808,10 @@ function toggleRoutineInlineForm(type){
     if(cs.length>0)le=[...cs].sort((a,b)=>b.to.localeCompare(a.to))[0].to;
     else{const ss=fixedSleepDatabase[currentSelectedDay]||[];if(ss[1]&&ss[1].to)le=ss[1].to;}
     document.getElementById('inline-slot-from').value=le;
-    document.getElementById('inline-slot-to').value=addMinutesToTime(le,90);
+    document.getElementById('disp-inline-slot-from').innerText=formatTime12(le);
+    const defaultTo=addMinutesToTime(le,90);
+    document.getElementById('inline-slot-to').value=defaultTo;
+    document.getElementById('disp-inline-slot-to').innerText=formatTime12(defaultTo);
 }
 function selectRoutineSubject(id,el){
     selectedRoutineSubjectId=id;
@@ -3540,6 +3824,18 @@ function submitInlineRoutineSlot(){
     if(!f||!t){showToast("الرجاء تحديد الوقت");return;}
     const h=calcHDiff(f,t);
     if(h<=0){showToast("وقت الانتهاء يجب أن يكون بعد وقت البدء");return;}
+    // تحقق ذكي: مدة طويلة بشكل غير معتاد (6 ساعات فأكثر) غالباً تعني خطأ باختيار صباحاً/مساءً
+    if(h>=6){
+        showCustomConfirm(
+            `المدة المحتسبة لهذه الفترة ${h.toFixed(1)} ساعة، وهي أطول من المعتاد بكثير (من ${formatTime12(f)} إلى ${formatTime12(t)}). هل تأكدت من اختيار صباحاً/مساءً بشكل صحيح؟`,
+            ()=>finalizeInlineRoutineSlot(f,t,h),
+            {acceptLabel:'<i class="fa-solid fa-check"></i> نعم، المدة صحيحة',acceptColor:'var(--accent-color)'}
+        );
+        return;
+    }
+    finalizeInlineRoutineSlot(f,t,h);
+}
+function finalizeInlineRoutineSlot(f,t,h){
     let label='';
     if(currentFormType==='جامعة'&&selectedRoutineSubjectId){
         const s=subjectsDatabase.find(x=>x.id===selectedRoutineSubjectId);
@@ -3861,7 +4157,7 @@ function dropOnDay(tid,dk){
         };
         storedDailyTasks.push(newDayTask);
         hierarchicalGoalsDatabase=hierarchicalGoalsDatabase.filter(x=>x.id!==g.id);
-        saveGoals();saveTasks();syncStationToTodayPeriod(newDayTask.id);
+        saveGoals();saveTasks();
         showToast(`تم توزيعها على يوم ${dayNamesArabic[dk]}`);
         renderHierarchicalTopDownSystem();renderDailyTasks();
         return;
@@ -4373,7 +4669,6 @@ function openAddUnitModal(parentId,type){
     document.getElementById('add-unit-hours').value='1';
     document.getElementById('add-unit-minutes').value='30';
     document.getElementById('add-unit-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('add-unit-name').focus(),100);
 }
 function closeAddUnitModal(){document.getElementById('add-unit-modal').style.display='none';addingUnitForParentId=null;}
 function submitAddUnit(){
@@ -4441,7 +4736,6 @@ function openAddBookModal(){
     refreshBookColorSwatches();
     renderExistingBooksPreview();
     document.getElementById('add-book-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('add-book-name').focus(),100);
 }
 function closeAddBookModal(){document.getElementById('add-book-modal').style.display='none';}
 function selectBookColor(color,el){selectedBookColor=color;document.querySelectorAll('#book-color-swatches .color-swatch').forEach(s=>s.classList.remove('selected'));if(el)el.classList.add('selected');}
@@ -4500,7 +4794,6 @@ function openAddSeriesModal(){
     document.getElementById('add-series-icon-preview').style.display='none';
     document.getElementById('add-series-icon-input').value='';
     document.getElementById('add-series-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('add-series-name').focus(),100);
 }
 function closeAddSeriesModal(){document.getElementById('add-series-modal').style.display='none';}
 function selectSeriesColor(color,el){selectedSeriesColor=color;document.querySelectorAll('#series-color-swatches .color-swatch').forEach(s=>s.classList.remove('selected'));if(el)el.classList.add('selected');}
@@ -4546,7 +4839,6 @@ function openAddNewSeriesModal(){
     document.getElementById('add-newseries-icon-preview').style.display='none';
     document.getElementById('add-newseries-icon-input').value='';
     document.getElementById('add-newseries-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('add-newseries-name').focus(),100);
 }
 function closeAddNewSeriesModal(){document.getElementById('add-newseries-modal').style.display='none';}
 function selectNewSeriesColor(color,el){selectedNewSeriesColor=color;document.querySelectorAll('#newseries-color-swatches .color-swatch').forEach(s=>s.classList.remove('selected'));if(el)el.classList.add('selected');}
@@ -4597,12 +4889,13 @@ function openBulkAddUnitsModal(parentId,type){
     const showTime=(type==='series'||type==='newseries'||type==='book');
     const timeRow=document.getElementById('bulk-add-units-time-row');
     const timeLabel=document.getElementById('bulk-add-units-time-label');
+    const timePills=document.getElementById('bulk-add-units-time-row-pills');
     if(timeRow)timeRow.style.display=showTime?'flex':'none';
     if(timeLabel)timeLabel.style.display=showTime?'block':'none';
+    if(timePills)timePills.style.display=showTime?'flex':'none';
     document.getElementById('bulk-add-units-hours').value='0';
     document.getElementById('bulk-add-units-minutes').value='30';
     document.getElementById('bulk-add-units-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('bulk-add-units-count').focus(),100);
 }
 function closeBulkAddUnitsModal(){document.getElementById('bulk-add-units-modal').style.display='none';bulkAddUnitsTarget={parentId:null,type:null};}
 function submitBulkAddUnits(){
@@ -4665,7 +4958,6 @@ function openAddWorshipModal(){
     document.getElementById('add-worship-icon-preview').style.display='none';
     document.getElementById('add-worship-icon-input').value='';
     document.getElementById('add-worship-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('add-worship-name').focus(),100);
 }
 function closeAddWorshipModal(){document.getElementById('add-worship-modal').style.display='none';}
 function selectWorshipColor(color,el){selectedWorshipColor=color;document.querySelectorAll('#worship-color-swatches .color-swatch').forEach(s=>s.classList.remove('selected'));if(el)el.classList.add('selected');}
@@ -5211,6 +5503,150 @@ let modalStudyTab='subjects';
 let selectedModalUnitId=null;
 
 // ================================================================
+// نظام الإشعارات الموحّد (3 أنواع فقط: فترة حالية / خلاصة اليوم / تخطيط الأسبوع)
+// ================================================================
+function sendAppNotification(title,body,tag){
+    if(!('Notification' in window) || Notification.permission!=='granted')return;
+    if(localStorage.getItem('periodNotificationsEnabled')!=='true')return;
+    if('serviceWorker' in navigator){
+        navigator.serviceWorker.ready.then(reg=>{
+            reg.showNotification(title,{body,tag,icon:'icon-192.png',badge:'badge-96.png',renotify:true,vibrate:[120,60,120]});
+        });
+    }
+}
+
+// -- تحديد الفترة الحالية بناءً على الوقت الفعلي --
+function getCurrentStationKey(){
+    const now=new Date();
+    const nowMinutes=now.getHours()*60+now.getMinutes();
+    const toMinutes=t=>{if(!t||!t.includes(':'))return null;const[h,m]=t.split(':').map(Number);return h*60+m;};
+    for(const sk of Object.keys(stationLabelsArabic)){
+        const times=getStationEffectiveTimes(sk);
+        const from=toMinutes(times.from),to=toMinutes(times.to);
+        if(from===null||to===null)continue;
+        if(from<=to){ if(nowMinutes>=from&&nowMinutes<to)return sk; }
+        else{ if(nowMinutes>=from||nowMinutes<to)return sk; } // فترة تمتد بعد منتصف الليل
+    }
+    return null;
+}
+
+// -- 1) إشعار الفترة الحالية (كل 20 دقيقة) --
+let lastPeriodNotifKey=null,lastPeriodNotifTime=0;
+function checkPeriodNotification(){
+    const sk=getCurrentStationKey();
+    if(!sk)return;
+    const now=Date.now();
+    const changed=sk!==lastPeriodNotifKey;
+    const twentyMinPassed=(now-lastPeriodNotifTime)>=20*60*1000;
+    if(!changed&&!twentyMinPassed)return;
+    const tasks=storedDailyTasks.filter(t=>t.targetDay===currentActualDayKey&&t.station===sk&&t.status!=='done').slice(0,4);
+    const body=tasks.length?tasks.map(t=>`• ${t.title}`).join('\n'):'لا توجد مهام متبقية 🎉';
+    sendAppNotification(`⏰ أنت الآن في ${stationLabelsArabic[sk]}`,body,'period-notification');
+    lastPeriodNotifKey=sk;lastPeriodNotifTime=now;
+}
+
+// -- 2) إشعار خلاصة اليوم (مرة واحدة يومياً، قبل ساعتين من وقت النوم) --
+function checkDailyCheckinNotification(){
+    const todayStr=currentActualDayKey+'-'+todayDateObj.toDateString();
+    if(localStorage.getItem('lastDailyCheckinDate')===todayStr)return;
+    const sleepSlots=fixedSleepDatabase[currentActualDayKey]||[];
+    let sleepFrom='21:00';
+    if(sleepSlots[0]&&sleepSlots[0].from)sleepFrom=sleepSlots[0].from;
+    const[sh,sm]=sleepFrom.split(':').map(Number);
+    let targetMinutes=sh*60+sm-120;
+    if(targetMinutes<0)targetMinutes+=24*60;
+    const now=new Date();
+    const nowMinutes=now.getHours()*60+now.getMinutes();
+    if(nowMinutes<targetMinutes)return;
+    const lines=[];
+    worshipDatabase.filter(w=>w.type==='simple'&&w.targetCount).forEach(w=>{
+        const done=storedDailyTasks.filter(t=>t.unitKind==='worship-simple'&&t.worshipId===w.id&&t.targetDay===currentActualDayKey&&t.status==='done').length;
+        if(done<w.targetCount)lines.push(`لسا ما وصلت هدف ${w.name} اليوم`);
+    });
+    const quranDone=storedDailyTasks.some(t=>{
+        if(t.unitKind!=='worship-read'||t.targetDay!==currentActualDayKey||t.status!=='done')return false;
+        const w=worshipDatabase.find(x=>x.id===t.worshipId);
+        return w&&w.isDefaultQuran===true;
+    });
+    if(!quranDone)lines.push('لسا ما قرأت من القرآن اليوم 📖');
+    const todayTasks=storedDailyTasks.filter(t=>t.targetDay===currentActualDayKey);
+    const doneCount=todayTasks.filter(t=>t.status==='done').length;
+    lines.push(`أنجزت ${doneCount} من أصل ${todayTasks.length} مهمة اليوم`);
+    const body=lines.length===1?'يوم ممتاز! أنجزت كل شي 🎉':lines.join('\n');
+    sendAppNotification('📊 خلاصة يومك',body,'daily-checkin');
+    localStorage.setItem('lastDailyCheckinDate',todayStr);
+}
+
+// -- 3) إشعار تخطيط الأسبوع الفارغ (جمعة/سبت مساءً فقط، مرة لكل أسبوع) --
+function checkWeekPlanningNotification(){
+    const dow=todayDateObj.getDay(); // 5=fri,6=sat
+    if(dow!==5&&dow!==6)return;
+    const now=new Date();
+    if(now.getHours()<18)return;
+    const nextWeekContext='w'+(Math.min(Math.ceil(todayDateObj.getDate()/7),4)+1);
+    const reminderKey=`${currentActualDayKey}-${nextWeekContext}`;
+    if(localStorage.getItem('lastWeekReminderContext')===reminderKey)return;
+    const hasGoals=hierarchicalGoalsDatabase.some(g=>g.targetContext===nextWeekContext);
+    if(hasGoals)return;
+    sendAppNotification('🎯 صندوق أسبوعك فاضي','خصص شوية دقائق لتخطيط الأسبوع الجاي','week-planning-reminder');
+    localStorage.setItem('lastWeekReminderContext',reminderKey);
+}
+
+// -- حلقة الفحص الموحّدة --
+let notificationCheckTimer=null;
+function checkAllNotificationTriggers(){
+    checkPeriodNotification();
+    checkDailyCheckinNotification();
+    checkWeekPlanningNotification();
+}
+function startNotificationSystem(){
+    if(notificationCheckTimer)clearInterval(notificationCheckTimer);
+    checkAllNotificationTriggers();
+    notificationCheckTimer=setInterval(checkAllNotificationTriggers,5*60*1000);
+}
+function stopNotificationSystem(){if(notificationCheckTimer){clearInterval(notificationCheckTimer);notificationCheckTimer=null;}}
+
+// -- مفتاح التفعيل بصفحة الروتين --
+function refreshNotificationToggleUI(){
+    const on=localStorage.getItem('periodNotificationsEnabled')==='true';
+    const btn=document.getElementById('btn-toggle-notifications');
+    const label=document.getElementById('notif-toggle-label');
+    if(!btn||!label)return;
+    label.innerText=on?'إشعارات التطبيق مفعّلة':'تفعيل إشعارات التطبيق';
+    btn.style.background=on?'var(--accent-color)':'var(--card-bg)';
+    btn.style.color=on?'#fff':'var(--accent-color)';
+}
+function toggleAppNotifications(){
+    const currentlyOn=localStorage.getItem('periodNotificationsEnabled')==='true';
+    if(currentlyOn){
+        localStorage.setItem('periodNotificationsEnabled','false');
+        stopNotificationSystem();
+        refreshNotificationToggleUI();
+        showToast('تم إيقاف الإشعارات');
+        return;
+    }
+    if(!('Notification' in window)){showToast('المتصفح لا يدعم الإشعارات');return;}
+    if(Notification.permission==='granted'){
+        localStorage.setItem('periodNotificationsEnabled','true');
+        startNotificationSystem();
+        refreshNotificationToggleUI();
+        showToast('تم تفعيل الإشعارات 🔔','var(--accent-color)');
+    } else {
+        Notification.requestPermission().then(perm=>{
+            if(perm==='granted'){
+                localStorage.setItem('periodNotificationsEnabled','true');
+                startNotificationSystem();
+                showToast('تم تفعيل الإشعارات 🔔','var(--accent-color)');
+            } else {
+                localStorage.setItem('periodNotificationsEnabled','false');
+                showToast('لم يتم منح إذن الإشعارات');
+            }
+            refreshNotificationToggleUI();
+        });
+    }
+}
+
+// ================================================================
 // الإقلاع
 // ================================================================
 (function init(){
@@ -5224,6 +5660,10 @@ let selectedModalUnitId=null;
     highlightCurrentDayInGrid();
     initDragAutoScroll();
     document._weekTaskDeleteMode=null;
+    refreshNotificationToggleUI();
+    if(localStorage.getItem('periodNotificationsEnabled')==='true' && 'Notification' in window && Notification.permission==='granted'){
+        startNotificationSystem();
+    }
 })();
 
 // ================================================================
